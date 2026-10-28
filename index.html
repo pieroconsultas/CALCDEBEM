@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CalcDeBem - Monitoramento Diário de Refeições e Macronutrientes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #d1d5db; /* Fundo acinzentado conforme solicitado */
+      color: #1f2937;
+    }
+    .card-surface {
+      background-color: #f8fafc;
+      border: 1px solid #cbd5e1;
+      min-width: 0;
+      overflow: hidden;
+    }
+    select {
+      min-width: 0;
+      max-width: 100%;
+      text-overflow: ellipsis;
+    }
+    .btn-yellow-step {
+      background-color: #facc15; /* Amarelado vibrante */
+      color: #1e293b;
+      border: 1px solid #eab308;
+      font-weight: 700;
+      transition: all 0.15s ease;
+    }
+    .btn-yellow-step:hover {
+      background-color: #eab308;
+      transform: translateY(-1px);
+    }
+    .btn-yellow-step:active {
+      background-color: #ca8a04;
+      transform: translateY(0);
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #e5e7eb; }
+    ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+  </style>
+</head>
+<body class="min-h-screen pb-16">
+
+  <!-- CABEÇALHO PRINCIPAL CALCDEBEM (COM LOGO FIXO SEM OPÇÃO DE TROCA) -->
+  <header class="bg-slate-900 text-white shadow-lg border-b-4 border-amber-400 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <!-- Área do Logo Fixo + Nome CalcDeBem -->
+      <div class="flex items-center gap-3">
+        <div class="select-none">
+          <img
+            id="brandLogoImg"
+            src="data:image/jpeg;base64,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"
+            alt="Logo Team De Bem"
+            class="w-14 h-14 rounded-xl object-cover bg-slate-800 border-2 border-amber-400 shadow-md pointer-events-none"
+          />
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-extrabold tracking-tight text-white">Calc<span class="text-amber-400">DeBem</span></h1>
+            <span class="text-xs bg-slate-800 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded-full font-medium">TACO / TBCA</span>
+          </div>
+          <p class="text-xs text-slate-300">Piero de Bem • Monitoramento Diário de Refeições e Macronutrientes</p>
+        </div>
+      </div>
+
+      <!-- Ações Rápidas do Topo (Sem botão de trocar logo, com botão de Adicionar Alimento) -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="openCustomFoodModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-2 rounded-lg border border-slate-700 transition font-semibold">
+          + Adicionar Alimento
+        </button>
+        <button onclick="openConfigModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg border border-slate-700 transition" title="Configurar URL da Planilha Google">
+          ⚙️ Conexão Planilha
+        </button>
+        <button onclick="resetDay()" class="text-xs bg-rose-900/60 hover:bg-rose-800 text-rose-200 px-3 py-2 rounded-lg border border-rose-700/50 transition">
+          Limpar Dia
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 mt-6 space-y-6">
+
+    <!-- BLOCO 1: IDENTIFICAÇÃO DO PACIENTE E ENVIO AO GOOGLE PLANILHAS -->
+    <section class="card-surface rounded-2xl p-5 shadow-md border-l-8 border-l-amber-400">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div class="flex-1">
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <span>👤 Identificação do Paciente & Registro Diário</span>
+            <span class="text-xs font-normal text-slate-500">(Campos com * são obrigatórios para envio)</span>
+          </h2>
+          <p class="text-xs text-slate-600 mt-0.5">
+            Utilize sempre o mesmo e-mail para que seus registros diários sejam salvos automaticamente na sua pasta e histórico individual.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div>
+              <label for="patientName" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+                Nome Completo do Paciente <span class="text-rose-600">*</span>
+              </label>
+              <input
+                type="text"
+                id="patientName"
+                required
+                placeholder="Ex: Maria Aparecida Silva"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-400"
+                oninput="saveStateToLocal()"
+              />
+            </div>
+
+            <div>
+              <label for="patientEmail" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+                E-mail do Paciente <span class="text-rose-600">*</span>
+              </label>
+              <input
+                type="email"
+                id="patientEmail"
+                required
+                placeholder="Ex: maria.silva@email.com"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-400"
+                oninput="saveStateToLocal()"
+              />
+            </div>
+
+            <div>
+              <label for="recordDate" class="block text-xs font-bold uppercase text-slate-700 mb-1">
+                Dia de Registro das Refeições <span class="text-rose-600">*</span>
+              </label>
+              <input
+                type="date"
+                id="recordDate"
+                required
+                class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                onchange="saveStateToLocal()"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row lg:flex-col gap-2 min-w-[240px]">
+          <button
+            id="btnSubmitSheet"
+            onclick="submitToGoogleSheets()"
+            class="w-full py-3.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Enviar Registro do Dia</span>
+          </button>
+          <span id="submitStatusBadge" class="text-[11px] text-center text-slate-500">
+            Envia horários, refeições e observações para sua pasta
+          </span>
+        </div>
+      </div>
+
+      <div id="submitFeedbackBox" class="hidden mt-4 p-3.5 rounded-xl text-sm font-medium"></div>
+    </section>
+
+    <!-- BLOCO 2: RESUMO DE METAS E MACRONUTRIENTES DO DIA -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-5 card-surface rounded-2xl p-5 shadow-md flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-bold text-slate-800">🎯 Metas Diárias Prescritas</h2>
+            <div class="flex bg-slate-200 rounded-lg p-0.5 text-xs font-semibold">
+              <button id="tabModeManual" onclick="setGoalMode('manual')" class="px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-sm">Manual</button>
+              <button id="tabModeAuto" onclick="setGoalMode('auto')" class="px-2.5 py-1 rounded-md text-slate-600">Calcular TMB/GET</button>
+            </div>
+          </div>
+
+          <div id="goalManualBox" class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Meta Calorias (kcal)</label>
+              <input type="number" id="goalKcal" value="2000" min="500" max="10000" class="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 font-bold text-slate-800 text-sm" oninput="updateGoalsFromManual()" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-sky-700 mb-1">Proteínas (g)</label>
+              <input type="number" id="goalProt" value="150" min="10" max="600" class="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 font-bold text-sky-700 text-sm" oninput="updateGoalsFromManual()" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-amber-700 mb-1">Carboidratos (g)</label>
+              <input type="number" id="goalCarb" value="200" min="0" max="1000" class="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 font-bold text-amber-700 text-sm" oninput="updateGoalsFromManual()" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-rose-700 mb-1">Gorduras (g)</label>
+              <input type="number" id="goalFat" value="67" min="10" max="400" class="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 font-bold text-rose-700 text-sm" oninput="updateGoalsFromManual()" />
+            </div>
+          </div>
+
+          <div id="goalAutoBox" class="hidden space-y-2.5 text-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div>
+                <label class="block font-semibold text-slate-600 mb-0.5">Sexo</label>
+                <select id="calcSex" class="w-full p-2 rounded-lg bg-white border border-slate-300" onchange="calculateAutoGoals()">
+                  <option value="M">Masculino</option>
+                  <option value="F">Feminino</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-0.5">Idade</label>
+                <input type="number" id="calcAge" value="30" class="w-full p-2 rounded-lg bg-white border border-slate-300" oninput="calculateAutoGoals()" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-0.5">Peso (kg)</label>
+                <input type="number" id="calcWeight" value="75" step="0.5" class="w-full p-2 rounded-lg bg-white border border-slate-300" oninput="calculateAutoGoals()" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-0.5">Altura (cm)</label>
+                <input type="number" id="calcHeight" value="175" class="w-full p-2 rounded-lg bg-white border border-slate-300" oninput="calculateAutoGoals()" />
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label class="block font-semibold text-slate-600 mb-0.5">Fator Atividade</label>
+                <select id="calcActivity" class="w-full p-2 rounded-lg bg-white border border-slate-300" onchange="calculateAutoGoals()">
+                  <option value="1.2">Sedentário (1.2)</option>
+                  <option value="1.375">Leve (1.375)</option>
+                  <option value="1.55" selected>Moderado (1.55)</option>
+                  <option value="1.725">Intenso (1.725)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-0.5">Objetivo</label>
+                <select id="calcObjective" class="w-full p-2 rounded-lg bg-white border border-slate-300" onchange="calculateAutoGoals()">
+                  <option value="-400">Emagrecimento (-400 kcal)</option>
+                  <option value="0" selected>Manutenção (0 kcal)</option>
+                  <option value="300">Hipertrofia (+300 kcal)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
+          <span>Base oficial ativa: <strong id="foodCountLabel">597</strong> alimentos em 15 categorias</span>
+          <button onclick="loadSampleDay()" class="text-amber-700 hover:underline font-semibold">Carregar Exemplo de Dia</button>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 card-surface rounded-2xl p-5 shadow-md grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+        <div class="md:col-span-7 space-y-3">
+          <h2 class="text-base font-bold text-slate-800">📊 Andamento Diário Consumido</h2>
+
+          <div class="bg-white p-3 rounded-xl border border-slate-200">
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-slate-700">CALORIAS TOTAIS</span>
+              <span id="labelKcalProgress" class="text-slate-900">0 / 2000 kcal (0%)</span>
+            </div>
+            <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+              <div id="barKcal" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <div class="flex justify-between text-[11px] font-bold text-sky-700 mb-1">
+                <span>PROTEÍNAS</span>
+                <span id="labelProtProgress">0/150g</span>
+              </div>
+              <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div id="barProt" class="h-full bg-sky-500 transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <div class="flex justify-between text-[11px] font-bold text-amber-700 mb-1">
+                <span>CARBOIDRATOS</span>
+                <span id="labelCarbProgress">0/200g</span>
+              </div>
+              <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div id="barCarb" class="h-full bg-amber-500 transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <div class="flex justify-between text-[11px] font-bold text-rose-700 mb-1">
+                <span>GORDURAS</span>
+                <span id="labelFatProgress">0/67g</span>
+              </div>
+              <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div id="barFat" class="h-full bg-rose-500 transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-5 flex flex-col items-center justify-center">
+          <div class="w-40 h-40 relative">
+            <canvas id="macroChart"></canvas>
+          </div>
+          <p id="macroSplitText" class="text-[11px] text-slate-600 font-medium mt-2 text-center">
+            P: 0% • C: 0% • G: 0%
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCO 3: QUADRANTES DAS REFEIÇÕES (COM FILTRO POR CATEGORIA, HORÁRIO E OBSERVAÇÕES) -->
+    <section class="space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-lg font-extrabold text-slate-800">🍽️ Registro Detalhado por Refeição</h2>
+        <span class="text-xs text-slate-600 font-medium">
+          Filtre por <strong>Categoria</strong> (Carnes, Frutas, Verduras...) e ajuste porções com <strong>-10g</strong> e <strong>+10g</strong>
+        </span>
+      </div>
+
+      <div id="mealsContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: ADICIONAR NOVO ALIMENTO (VALORES POR 100G) -->
+  <div id="customFoodModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-slate-800">🍽️ Cadastrar Alimento Personalizado</h3>
+        <button onclick="closeCustomFoodModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
+      </div>
+
+      <!-- Card idêntico à imagem solicitada -->
+      <div class="bg-slate-100 p-5 rounded-xl border border-slate-200">
+        <h4 class="text-sm font-bold text-slate-800 mb-4">Adicionar Novo Alimento (Valores por 100g)</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-4">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Alimento (Padrão TBCA)</label>
+            <input
+              type="text"
+              id="newFoodName"
+              placeholder="Ex: Arroz, integral, cozido"
+              class="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Energia (kcal / 100g)</label>
+            <input
+              type="number"
+              step="0.1"
+              id="newFoodKcal"
+              placeholder="Ex: 124"
+              class="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-sky-700 mb-1">Proteínas (g / 100g)</label>
+            <input
+              type="number"
+              step="0.1"
+              id="newFoodProt"
+              placeholder="Ex: 2.6"
+              class="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-amber-700 mb-1">Carboidratos (g / 100g)</label>
+            <input
+              type="number"
+              step="0.1"
+              id="newFoodCarb"
+              placeholder="Ex: 25.8"
+              class="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-rose-700 mb-1">Lipídios / Gorduras (g / 100g)</label>
+            <input
+              type="number"
+              step="0.1"
+              id="newFoodFat"
+              placeholder="Ex: 1.0"
+              class="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+          </div>
+        </div>
+        <button onclick="addCustomFood()" class="w-full py-3 rounded-lg btn-yellow-step text-sm shadow-xs">
+          Salvar Alimento na Base CalcDeBem
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIGURAÇÃO DA URL DO GOOGLE APPS SCRIPT -->
+  <div id="configModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-slate-800">⚙️ Conexão com Google Planilhas</h3>
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
+      </div>
+      <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+        Se você publicou este painel diretamente pelo <strong>Google Apps Script</strong>, a conexão é automática. Caso esteja abrindo este arquivo HTML fora do Google, cole abaixo a <strong>URL do Aplicativo da Web (Web App URL)</strong> gerada na implantação do Apps Script:
+      </p>
+      <label class="block text-xs font-bold uppercase text-slate-700 mb-1">URL do Web App (Google Apps Script)</label>
+      <input
+        type="url"
+        id="gasWebAppUrlInput"
+        placeholder="https://script.google.com/macros/s/AKfycb.../exec"
+        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs font-mono mb-4"
+      />
+      <div class="flex justify-end gap-2">
+        <button onclick="closeConfigModal()" class="px-4 py-2 rounded-lg bg-slate-200 text-slate-700 text-xs font-semibold">Cancelar</button>
+        <button onclick="saveGasUrl()" class="px-4 py-2 rounded-lg btn-yellow-step text-xs">Salvar URL</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwE6PuJF73cauF90z8iabDOHXglrbXbaACSH9AxB6667zlupkqJQeBmGlT8YSf6tEWY/exec ";
+
+    // =========================================================================
+    // BASE COMPLETA EXTRAÍDA DO PDF ENVIADO (597 ALIMENTOS - 15 CATEGORIAS)
+    // Valores por 100g de parte comestível: kcal, prot (g), carb (g), fat (g)
+    // =========================================================================
+    const FOOD_CATEGORIES = [
+      "Carnes e derivados",
+      "Frutas e derivados",
+      "Verduras, hortaliças e derivados",
+      "Cereais e derivados",
+      "Leguminosas e derivados",
+      "Pescados e frutos do mar",
+      "Leite e derivados",
+      "Ovos e derivados",
+      "Gorduras e óleos",
+      "Alimentos preparados",
+      "Nozes e sementes",
+      "Bebidas (alcoólicas e não alcoólicas)",
+      "Produtos açucarados",
+      "Miscelâneas",
+      "Outros alimentos industrializados"
+    ];
+
+const DEFAULT_TBCA_FOODS = [
+  { id: "taco_1", category: "Cereais e derivados", name: "Arroz, integral, cozido", kcal: 124, prot: 2.6, carb: 25.8, fat: 1.0 },
+  { id: "taco_2", category: "Cereais e derivados", name: "Arroz, integral, cru", kcal: 360, prot: 7.3, carb: 77.5, fat: 1.9 },
+  { id: "taco_3", category: "Cereais e derivados", name: "Arroz, tipo 1, cozido", kcal: 128, prot: 2.5, carb: 28.1, fat: 0.2 },
+  { id: "taco_4", category: "Cereais e derivados", name: "Arroz, tipo 1, cru", kcal: 358, prot: 7.2, carb: 78.8, fat: 0.3 },
+  { id: "taco_5", category: "Cereais e derivados", name: "Arroz, tipo 2, cozido", kcal: 130, prot: 2.6, carb: 28.2, fat: 0.4 },
+  { id: "taco_6", category: "Cereais e derivados", name: "Arroz, tipo 2, cru", kcal: 358, prot: 7.2, carb: 78.9, fat: 0.3 },
+  { id: "taco_7", category: "Cereais e derivados", name: "Aveia, flocos, crua", kcal: 394, prot: 13.9, carb: 66.6, fat: 8.5 },
+  { id: "taco_8", category: "Cereais e derivados", name: "Biscoito, doce, maisena", kcal: 443, prot: 8.1, carb: 75.2, fat: 12.0 },
+  { id: "taco_9", category: "Cereais e derivados", name: "Biscoito, doce, recheado com chocolate", kcal: 472, prot: 6.4, carb: 70.5, fat: 19.6 },
+  { id: "taco_10", category: "Cereais e derivados", name: "Biscoito, doce, recheado com morango", kcal: 471, prot: 5.7, carb: 71.0, fat: 19.6 },
+  { id: "taco_11", category: "Cereais e derivados", name: "Biscoito, doce, wafer, recheado de chocolate", kcal: 502, prot: 5.6, carb: 67.5, fat: 24.7 },
+  { id: "taco_12", category: "Cereais e derivados", name: "Biscoito, doce, wafer, recheado de morango", kcal: 513, prot: 4.5, carb: 67.4, fat: 26.4 },
+  { id: "taco_13", category: "Cereais e derivados", name: "Biscoito, salgado, cream cracker", kcal: 432, prot: 10.1, carb: 68.7, fat: 14.4 },
+  { id: "taco_14", category: "Cereais e derivados", name: "Bolo, mistura para", kcal: 419, prot: 6.2, carb: 84.7, fat: 6.1 },
+  { id: "taco_15", category: "Cereais e derivados", name: "Bolo, pronto, aipim", kcal: 324, prot: 4.4, carb: 47.9, fat: 12.7 },
+  { id: "taco_16", category: "Cereais e derivados", name: "Bolo, pronto, chocolate", kcal: 410, prot: 6.2, carb: 54.7, fat: 18.5 },
+  { id: "taco_17", category: "Cereais e derivados", name: "Bolo, pronto, coco", kcal: 333, prot: 5.7, carb: 52.3, fat: 11.3 },
+  { id: "taco_18", category: "Cereais e derivados", name: "Bolo, pronto, milho", kcal: 311, prot: 4.8, carb: 45.1, fat: 12.4 },
+  { id: "taco_19", category: "Cereais e derivados", name: "Canjica, branca, crua", kcal: 358, prot: 7.2, carb: 78.1, fat: 1.0 },
+  { id: "taco_20", category: "Cereais e derivados", name: "Canjica, com leite integral", kcal: 112, prot: 2.4, carb: 23.6, fat: 1.2 },
+  { id: "taco_21", category: "Cereais e derivados", name: "Cereais, milho, flocos, com sal", kcal: 370, prot: 7.3, carb: 80.8, fat: 1.6 },
+  { id: "taco_22", category: "Cereais e derivados", name: "Cereais, milho, flocos, sem sal", kcal: 363, prot: 6.9, carb: 80.4, fat: 1.2 },
+  { id: "taco_23", category: "Cereais e derivados", name: "Cereais, mingau, milho, infantil", kcal: 394, prot: 6.4, carb: 87.3, fat: 1.1 },
+  { id: "taco_24", category: "Cereais e derivados", name: "Cereais, mistura para vitamina, trigo, cevada e aveia", kcal: 381, prot: 8.9, carb: 81.6, fat: 2.1 },
+  { id: "taco_25", category: "Cereais e derivados", name: "Cereal matinal, milho", kcal: 365, prot: 7.2, carb: 83.8, fat: 1.0 },
+  { id: "taco_26", category: "Cereais e derivados", name: "Cereal matinal, milho, açúcar", kcal: 377, prot: 4.7, carb: 88.8, fat: 0.7 },
+  { id: "taco_27", category: "Cereais e derivados", name: "Creme de arroz, pó", kcal: 386, prot: 7.0, carb: 83.9, fat: 1.2 },
+  { id: "taco_28", category: "Cereais e derivados", name: "Creme de milho, pó", kcal: 333, prot: 4.8, carb: 86.1, fat: 1.6 },
+  { id: "taco_29", category: "Cereais e derivados", name: "Curau, milho verde", kcal: 78, prot: 2.4, carb: 13.9, fat: 1.6 },
+  { id: "taco_30", category: "Cereais e derivados", name: "Curau, milho verde, mistura para", kcal: 402, prot: 2.2, carb: 79.8, fat: 13.4 },
+  { id: "taco_31", category: "Cereais e derivados", name: "Farinha, de arroz, enriquecida", kcal: 363, prot: 1.3, carb: 85.5, fat: 0.3 },
+  { id: "taco_32", category: "Cereais e derivados", name: "Farinha, de centeio, integral", kcal: 336, prot: 12.5, carb: 73.3, fat: 1.8 },
+  { id: "taco_33", category: "Cereais e derivados", name: "Farinha, de milho, amarela", kcal: 351, prot: 7.2, carb: 79.1, fat: 1.5 },
+  { id: "taco_34", category: "Cereais e derivados", name: "Farinha, de rosca", kcal: 371, prot: 11.4, carb: 75.8, fat: 1.5 },
+  { id: "taco_35", category: "Cereais e derivados", name: "Farinha, de trigo", kcal: 360, prot: 9.8, carb: 75.1, fat: 1.4 },
+  { id: "taco_36", category: "Cereais e derivados", name: "Farinha, láctea, de cereais", kcal: 415, prot: 11.9, carb: 77.8, fat: 5.8 },
+  { id: "taco_37", category: "Cereais e derivados", name: "Lasanha, massa fresca, cozida", kcal: 164, prot: 5.8, carb: 32.5, fat: 1.2 },
+  { id: "taco_38", category: "Cereais e derivados", name: "Lasanha, massa fresca, crua", kcal: 220, prot: 7.0, carb: 45.1, fat: 1.3 },
+  { id: "taco_39", category: "Cereais e derivados", name: "Macarrão, instantâneo", kcal: 436, prot: 8.8, carb: 62.4, fat: 17.2 },
+  { id: "taco_40", category: "Cereais e derivados", name: "Macarrão, trigo, cru", kcal: 371, prot: 10.0, carb: 77.9, fat: 1.3 },
+  { id: "taco_41", category: "Cereais e derivados", name: "Macarrão, trigo, cru, com ovos", kcal: 371, prot: 10.3, carb: 76.6, fat: 2.0 },
+  { id: "taco_42", category: "Cereais e derivados", name: "Milho, amido, cru", kcal: 361, prot: 0.6, carb: 87.1, fat: 0.0 },
+  { id: "taco_43", category: "Cereais e derivados", name: "Milho, fubá, cru", kcal: 353, prot: 7.2, carb: 78.9, fat: 1.9 },
+  { id: "taco_44", category: "Cereais e derivados", name: "Milho, verde, cru", kcal: 138, prot: 6.6, carb: 28.6, fat: 0.6 },
+  { id: "taco_45", category: "Cereais e derivados", name: "Milho, verde, enlatado, drenado", kcal: 98, prot: 3.2, carb: 17.1, fat: 2.4 },
+  { id: "taco_46", category: "Cereais e derivados", name: "Mingau tradicional, pó", kcal: 373, prot: 0.6, carb: 89.3, fat: 0.4 },
+  { id: "taco_47", category: "Cereais e derivados", name: "Pamonha, barra para cozimento, pré-cozida", kcal: 171, prot: 2.6, carb: 30.7, fat: 4.8 },
+  { id: "taco_48", category: "Cereais e derivados", name: "Pão, aveia, forma", kcal: 343, prot: 12.4, carb: 59.6, fat: 5.7 },
+  { id: "taco_49", category: "Cereais e derivados", name: "Pão, de soja", kcal: 309, prot: 11.3, carb: 56.5, fat: 3.6 },
+  { id: "taco_50", category: "Cereais e derivados", name: "Pão, glúten, forma", kcal: 253, prot: 12.0, carb: 44.1, fat: 2.7 },
+  { id: "taco_51", category: "Cereais e derivados", name: "Pão, milho, forma", kcal: 292, prot: 8.3, carb: 56.4, fat: 3.1 },
+  { id: "taco_52", category: "Cereais e derivados", name: "Pão, trigo, forma, integral", kcal: 253, prot: 9.4, carb: 49.9, fat: 3.7 },
+  { id: "taco_53", category: "Cereais e derivados", name: "Pão, trigo, francês", kcal: 300, prot: 8.0, carb: 58.6, fat: 3.1 },
+  { id: "taco_54", category: "Cereais e derivados", name: "Pão, trigo, sovado", kcal: 311, prot: 8.4, carb: 61.5, fat: 2.8 },
+  { id: "taco_55", category: "Cereais e derivados", name: "Pastel, de carne, cru", kcal: 289, prot: 10.7, carb: 42.0, fat: 8.8 },
+  { id: "taco_56", category: "Cereais e derivados", name: "Pastel, de carne, frito", kcal: 388, prot: 10.1, carb: 43.8, fat: 20.1 },
+  { id: "taco_57", category: "Cereais e derivados", name: "Pastel, de queijo, cru", kcal: 308, prot: 9.9, carb: 45.9, fat: 9.6 },
+  { id: "taco_58", category: "Cereais e derivados", name: "Pastel, de queijo, frito", kcal: 422, prot: 8.7, carb: 48.1, fat: 22.7 },
+  { id: "taco_59", category: "Cereais e derivados", name: "Pastel, massa, crua", kcal: 310, prot: 6.9, carb: 57.4, fat: 5.5 },
+  { id: "taco_60", category: "Cereais e derivados", name: "Pastel, massa, frita", kcal: 570, prot: 6.0, carb: 49.3, fat: 40.9 },
+  { id: "taco_61", category: "Cereais e derivados", name: "Pipoca, com óleo de soja, sem sal", kcal: 448, prot: 9.9, carb: 70.3, fat: 15.9 },
+  { id: "taco_62", category: "Cereais e derivados", name: "Polenta, pré-cozida", kcal: 103, prot: 2.3, carb: 23.3, fat: 0.3 },
+  { id: "taco_63", category: "Cereais e derivados", name: "Torrada, pão francês", kcal: 377, prot: 10.5, carb: 74.6, fat: 3.3 },
+  { id: "taco_64", category: "Verduras, hortaliças e derivados", name: "Abóbora, cabotian, cozida", kcal: 48, prot: 1.4, carb: 10.8, fat: 0.7 },
+  { id: "taco_65", category: "Verduras, hortaliças e derivados", name: "Abóbora, cabotian, crua", kcal: 39, prot: 1.7, carb: 8.4, fat: 0.5 },
+  { id: "taco_66", category: "Verduras, hortaliças e derivados", name: "Abóbora, menina brasileira, crua", kcal: 14, prot: 0.6, carb: 3.3, fat: 0.0 },
+  { id: "taco_67", category: "Verduras, hortaliças e derivados", name: "Abóbora, moranga, crua", kcal: 12, prot: 1.0, carb: 2.7, fat: 0.1 },
+  { id: "taco_68", category: "Verduras, hortaliças e derivados", name: "Abóbora, moranga, refogada", kcal: 29, prot: 0.4, carb: 6.0, fat: 0.8 },
+  { id: "taco_69", category: "Verduras, hortaliças e derivados", name: "Abóbora, pescoço, crua", kcal: 24, prot: 0.7, carb: 6.1, fat: 0.1 },
+  { id: "taco_70", category: "Verduras, hortaliças e derivados", name: "Abobrinha, italiana, cozida", kcal: 15, prot: 1.1, carb: 3.0, fat: 0.2 },
+  { id: "taco_71", category: "Verduras, hortaliças e derivados", name: "Abobrinha, italiana, crua", kcal: 19, prot: 1.1, carb: 4.3, fat: 0.1 },
+  { id: "taco_72", category: "Verduras, hortaliças e derivados", name: "Abobrinha, italiana, refogada", kcal: 24, prot: 1.1, carb: 4.2, fat: 0.8 },
+  { id: "taco_73", category: "Verduras, hortaliças e derivados", name: "Abobrinha, paulista, crua", kcal: 31, prot: 0.6, carb: 7.9, fat: 0.1 },
+  { id: "taco_74", category: "Verduras, hortaliças e derivados", name: "Acelga, crua", kcal: 21, prot: 1.4, carb: 4.6, fat: 0.1 },
+  { id: "taco_75", category: "Verduras, hortaliças e derivados", name: "Agrião, cru", kcal: 17, prot: 2.7, carb: 2.3, fat: 0.2 },
+  { id: "taco_76", category: "Verduras, hortaliças e derivados", name: "Aipo, cru", kcal: 19, prot: 0.8, carb: 4.3, fat: 0.1 },
+  { id: "taco_77", category: "Verduras, hortaliças e derivados", name: "Alface, americana, crua", kcal: 9, prot: 0.6, carb: 1.7, fat: 0.1 },
+  { id: "taco_78", category: "Verduras, hortaliças e derivados", name: "Alface, crespa, crua", kcal: 11, prot: 1.3, carb: 1.7, fat: 0.2 },
+  { id: "taco_79", category: "Verduras, hortaliças e derivados", name: "Alface, lisa, crua", kcal: 14, prot: 1.7, carb: 2.4, fat: 0.1 },
+  { id: "taco_80", category: "Verduras, hortaliças e derivados", name: "Alface, roxa, crua", kcal: 13, prot: 0.9, carb: 2.5, fat: 0.2 },
+  { id: "taco_81", category: "Verduras, hortaliças e derivados", name: "Alfavaca, crua", kcal: 29, prot: 2.7, carb: 5.2, fat: 0.5 },
+  { id: "taco_82", category: "Verduras, hortaliças e derivados", name: "Alho, cru", kcal: 113, prot: 7.0, carb: 23.9, fat: 0.2 },
+  { id: "taco_83", category: "Verduras, hortaliças e derivados", name: "Alho-poró, cru", kcal: 32, prot: 1.4, carb: 6.9, fat: 0.1 },
+  { id: "taco_84", category: "Verduras, hortaliças e derivados", name: "Almeirão, cru", kcal: 18, prot: 1.8, carb: 3.3, fat: 0.2 },
+  { id: "taco_85", category: "Verduras, hortaliças e derivados", name: "Almeirão, refogado", kcal: 65, prot: 1.7, carb: 5.7, fat: 4.8 },
+  { id: "taco_86", category: "Verduras, hortaliças e derivados", name: "Batata, baroa, cozida", kcal: 80, prot: 0.9, carb: 18.9, fat: 0.2 },
+  { id: "taco_87", category: "Verduras, hortaliças e derivados", name: "Batata, baroa, crua", kcal: 101, prot: 1.0, carb: 24.0, fat: 0.2 },
+  { id: "taco_88", category: "Verduras, hortaliças e derivados", name: "Batata, doce, cozida", kcal: 77, prot: 0.6, carb: 18.4, fat: 0.1 },
+  { id: "taco_89", category: "Verduras, hortaliças e derivados", name: "Batata, doce, crua", kcal: 118, prot: 1.3, carb: 28.2, fat: 0.1 },
+  { id: "taco_90", category: "Verduras, hortaliças e derivados", name: "Batata, frita, tipo chips, industrializada", kcal: 543, prot: 5.6, carb: 51.2, fat: 36.6 },
+  { id: "taco_91", category: "Verduras, hortaliças e derivados", name: "Batata, inglesa, cozida", kcal: 52, prot: 1.2, carb: 11.9, fat: 0.0 },
+  { id: "taco_92", category: "Verduras, hortaliças e derivados", name: "Batata, inglesa, crua", kcal: 64, prot: 1.8, carb: 14.7, fat: 0.0 },
+  { id: "taco_93", category: "Verduras, hortaliças e derivados", name: "Batata, inglesa, frita", kcal: 267, prot: 5.0, carb: 35.6, fat: 13.1 },
+  { id: "taco_94", category: "Verduras, hortaliças e derivados", name: "Batata, inglesa, sauté", kcal: 68, prot: 1.3, carb: 14.1, fat: 0.9 },
+  { id: "taco_95", category: "Verduras, hortaliças e derivados", name: "Berinjela, cozida", kcal: 19, prot: 0.7, carb: 4.5, fat: 0.1 },
+  { id: "taco_96", category: "Verduras, hortaliças e derivados", name: "Berinjela, crua", kcal: 20, prot: 1.2, carb: 4.4, fat: 0.1 },
+  { id: "taco_97", category: "Verduras, hortaliças e derivados", name: "Beterraba, cozida", kcal: 32, prot: 1.3, carb: 7.2, fat: 0.1 },
+  { id: "taco_98", category: "Verduras, hortaliças e derivados", name: "Beterraba, crua", kcal: 49, prot: 1.9, carb: 11.1, fat: 0.1 },
+  { id: "taco_99", category: "Verduras, hortaliças e derivados", name: "Biscoito, polvilho doce", kcal: 438, prot: 1.3, carb: 80.5, fat: 12.2 },
+  { id: "taco_100", category: "Verduras, hortaliças e derivados", name: "Brócolis, cozido", kcal: 25, prot: 2.1, carb: 4.4, fat: 0.5 },
+  { id: "taco_101", category: "Verduras, hortaliças e derivados", name: "Brócolis, cru", kcal: 25, prot: 3.6, carb: 4.0, fat: 0.3 },
+  { id: "taco_102", category: "Verduras, hortaliças e derivados", name: "Cará, cozido", kcal: 78, prot: 1.5, carb: 18.9, fat: 0.1 },
+  { id: "taco_103", category: "Verduras, hortaliças e derivados", name: "Cará, cru", kcal: 96, prot: 2.3, carb: 23.0, fat: 0.1 },
+  { id: "taco_104", category: "Verduras, hortaliças e derivados", name: "Caruru, cru", kcal: 34, prot: 3.2, carb: 6.0, fat: 0.6 },
+  { id: "taco_105", category: "Verduras, hortaliças e derivados", name: "Catalonha, crua", kcal: 24, prot: 1.9, carb: 4.8, fat: 0.3 },
+  { id: "taco_106", category: "Verduras, hortaliças e derivados", name: "Catalonha, refogada", kcal: 63, prot: 2.0, carb: 4.8, fat: 4.8 },
+  { id: "taco_107", category: "Verduras, hortaliças e derivados", name: "Cebola, crua", kcal: 39, prot: 1.7, carb: 8.9, fat: 0.1 },
+  { id: "taco_108", category: "Verduras, hortaliças e derivados", name: "Cebolinha, crua", kcal: 20, prot: 1.9, carb: 3.4, fat: 0.4 },
+  { id: "taco_109", category: "Verduras, hortaliças e derivados", name: "Cenoura, cozida", kcal: 30, prot: 0.8, carb: 6.7, fat: 0.2 },
+  { id: "taco_110", category: "Verduras, hortaliças e derivados", name: "Cenoura, crua", kcal: 34, prot: 1.3, carb: 7.7, fat: 0.2 },
+  { id: "taco_111", category: "Verduras, hortaliças e derivados", name: "Chicória, crua", kcal: 14, prot: 1.1, carb: 2.9, fat: 0.1 },
+  { id: "taco_112", category: "Verduras, hortaliças e derivados", name: "Chuchu, cozido", kcal: 19, prot: 0.4, carb: 4.8, fat: 0.0 },
+  { id: "taco_113", category: "Verduras, hortaliças e derivados", name: "Chuchu, cru", kcal: 17, prot: 0.7, carb: 4.1, fat: 0.1 },
+  { id: "taco_114", category: "Verduras, hortaliças e derivados", name: "Coentro, folhas desidratadas", kcal: 309, prot: 20.9, carb: 48.0, fat: 10.4 },
+  { id: "taco_115", category: "Verduras, hortaliças e derivados", name: "Couve, manteiga, crua", kcal: 27, prot: 2.9, carb: 4.3, fat: 0.5 },
+  { id: "taco_116", category: "Verduras, hortaliças e derivados", name: "Couve, manteiga, refogada", kcal: 90, prot: 1.7, carb: 8.7, fat: 6.6 },
+  { id: "taco_117", category: "Verduras, hortaliças e derivados", name: "Couve-flor, crua", kcal: 23, prot: 1.9, carb: 4.5, fat: 0.2 },
+  { id: "taco_118", category: "Verduras, hortaliças e derivados", name: "Couve-flor, cozida", kcal: 19, prot: 1.2, carb: 3.9, fat: 0.3 },
+  { id: "taco_119", category: "Verduras, hortaliças e derivados", name: "Espinafre, Nova Zelândia, cru", kcal: 16, prot: 2.0, carb: 2.6, fat: 0.2 },
+  { id: "taco_120", category: "Verduras, hortaliças e derivados", name: "Espinafre, Nova Zelândia, refogado", kcal: 67, prot: 2.7, carb: 4.2, fat: 5.4 },
+  { id: "taco_121", category: "Verduras, hortaliças e derivados", name: "Farinha, de mandioca, crua", kcal: 361, prot: 1.6, carb: 87.9, fat: 0.3 },
+  { id: "taco_122", category: "Verduras, hortaliças e derivados", name: "Farinha, de mandioca, torrada", kcal: 365, prot: 1.2, carb: 89.2, fat: 0.3 },
+  { id: "taco_123", category: "Verduras, hortaliças e derivados", name: "Farinha, de puba", kcal: 360, prot: 1.6, carb: 87.3, fat: 0.5 },
+  { id: "taco_124", category: "Verduras, hortaliças e derivados", name: "Fécula, de mandioca", kcal: 331, prot: 0.5, carb: 81.1, fat: 0.3 },
+  { id: "taco_125", category: "Verduras, hortaliças e derivados", name: "Feijão, broto, cru", kcal: 39, prot: 4.2, carb: 7.8, fat: 0.1 },
+  { id: "taco_126", category: "Verduras, hortaliças e derivados", name: "Inhame, cru", kcal: 97, prot: 2.1, carb: 23.2, fat: 0.2 },
+  { id: "taco_127", category: "Verduras, hortaliças e derivados", name: "Jiló, cru", kcal: 27, prot: 1.4, carb: 6.2, fat: 0.2 },
+  { id: "taco_128", category: "Verduras, hortaliças e derivados", name: "Jurubeba, crua", kcal: 126, prot: 4.4, carb: 23.1, fat: 3.9 },
+  { id: "taco_129", category: "Verduras, hortaliças e derivados", name: "Mandioca, cozida", kcal: 125, prot: 0.6, carb: 30.1, fat: 0.3 },
+  { id: "taco_130", category: "Verduras, hortaliças e derivados", name: "Mandioca, crua", kcal: 151, prot: 1.1, carb: 36.2, fat: 0.3 },
+  { id: "taco_131", category: "Verduras, hortaliças e derivados", name: "Mandioca, farofa, temperada", kcal: 406, prot: 2.1, carb: 80.3, fat: 9.1 },
+  { id: "taco_132", category: "Verduras, hortaliças e derivados", name: "Mandioca, frita", kcal: 300, prot: 1.4, carb: 50.3, fat: 11.2 },
+  { id: "taco_133", category: "Verduras, hortaliças e derivados", name: "Manjericão, cru", kcal: 21, prot: 2.0, carb: 3.6, fat: 0.4 },
+  { id: "taco_134", category: "Verduras, hortaliças e derivados", name: "Maxixe, cru", kcal: 14, prot: 1.4, carb: 2.7, fat: 0.1 },
+  { id: "taco_135", category: "Verduras, hortaliças e derivados", name: "Mostarda, folha, crua", kcal: 18, prot: 2.1, carb: 3.2, fat: 0.2 },
+  { id: "taco_136", category: "Verduras, hortaliças e derivados", name: "Nhoque, batata, cozido", kcal: 181, prot: 5.9, carb: 36.8, fat: 1.9 },
+  { id: "taco_137", category: "Verduras, hortaliças e derivados", name: "Nabo, cru", kcal: 18, prot: 1.2, carb: 4.1, fat: 0.1 },
+  { id: "taco_138", category: "Verduras, hortaliças e derivados", name: "Palmito, juçara, em conserva", kcal: 23, prot: 1.8, carb: 4.3, fat: 0.4 },
+  { id: "taco_139", category: "Verduras, hortaliças e derivados", name: "Palmito, pupunha, em conserva", kcal: 29, prot: 2.5, carb: 5.5, fat: 0.5 },
+  { id: "taco_140", category: "Verduras, hortaliças e derivados", name: "Pão, de queijo, assado", kcal: 363, prot: 5.1, carb: 34.2, fat: 24.6 },
+  { id: "taco_141", category: "Verduras, hortaliças e derivados", name: "Pão, de queijo, cru", kcal: 295, prot: 3.6, carb: 38.5, fat: 14.0 },
+  { id: "taco_142", category: "Verduras, hortaliças e derivados", name: "Pepino, cru", kcal: 10, prot: 0.9, carb: 2.0, fat: 0.0 },
+  { id: "taco_143", category: "Verduras, hortaliças e derivados", name: "Pimentão, amarelo, cru", kcal: 28, prot: 1.2, carb: 6.0, fat: 0.4 },
+  { id: "taco_144", category: "Verduras, hortaliças e derivados", name: "Pimentão, verde, cru", kcal: 21, prot: 1.1, carb: 4.9, fat: 0.2 },
+  { id: "taco_145", category: "Verduras, hortaliças e derivados", name: "Pimentão, vermelho, cru", kcal: 23, prot: 1.0, carb: 5.5, fat: 0.1 },
+  { id: "taco_146", category: "Verduras, hortaliças e derivados", name: "Polvilho, doce", kcal: 351, prot: 0.4, carb: 86.8, fat: 0.0 },
+  { id: "taco_147", category: "Verduras, hortaliças e derivados", name: "Quiabo, cru", kcal: 30, prot: 1.9, carb: 6.4, fat: 0.3 },
+  { id: "taco_148", category: "Verduras, hortaliças e derivados", name: "Rabanete, cru", kcal: 14, prot: 1.4, carb: 2.7, fat: 0.1 },
+  { id: "taco_149", category: "Verduras, hortaliças e derivados", name: "Repolho, branco, cru", kcal: 17, prot: 0.9, carb: 3.9, fat: 0.1 },
+  { id: "taco_150", category: "Verduras, hortaliças e derivados", name: "Repolho, roxo, cru", kcal: 31, prot: 1.9, carb: 7.2, fat: 0.1 },
+  { id: "taco_151", category: "Verduras, hortaliças e derivados", name: "Repolho, roxo, refogado", kcal: 42, prot: 1.8, carb: 7.6, fat: 1.2 },
+  { id: "taco_152", category: "Verduras, hortaliças e derivados", name: "Rúcula, crua", kcal: 13, prot: 1.8, carb: 2.2, fat: 0.1 },
+  { id: "taco_153", category: "Verduras, hortaliças e derivados", name: "Salsa, crua", kcal: 33, prot: 3.3, carb: 5.7, fat: 0.6 },
+  { id: "taco_154", category: "Verduras, hortaliças e derivados", name: "Seleta de legumes, enlatada", kcal: 57, prot: 3.4, carb: 12.7, fat: 0.4 },
+  { id: "taco_155", category: "Verduras, hortaliças e derivados", name: "Serralha, crua", kcal: 30, prot: 2.7, carb: 4.9, fat: 0.7 },
+  { id: "taco_156", category: "Verduras, hortaliças e derivados", name: "Taioba, crua", kcal: 34, prot: 2.9, carb: 5.4, fat: 0.9 },
+  { id: "taco_157", category: "Verduras, hortaliças e derivados", name: "Tomate, com semente, cru", kcal: 15, prot: 1.1, carb: 3.1, fat: 0.2 },
+  { id: "taco_158", category: "Verduras, hortaliças e derivados", name: "Tomate, extrato", kcal: 61, prot: 2.4, carb: 15.0, fat: 0.2 },
+  { id: "taco_159", category: "Verduras, hortaliças e derivados", name: "Tomate, molho industrializado", kcal: 38, prot: 1.4, carb: 7.7, fat: 0.9 },
+  { id: "taco_160", category: "Verduras, hortaliças e derivados", name: "Tomate, purê", kcal: 28, prot: 1.4, carb: 6.9, fat: 0.0 },
+  { id: "taco_161", category: "Verduras, hortaliças e derivados", name: "Tomate, salada", kcal: 21, prot: 0.8, carb: 5.1, fat: 0.0 },
+  { id: "taco_162", category: "Verduras, hortaliças e derivados", name: "Vagem, crua", kcal: 25, prot: 1.8, carb: 5.3, fat: 0.2 },
+  { id: "taco_163", category: "Frutas e derivados", name: "Abacate, cru", kcal: 96, prot: 1.2, carb: 6.0, fat: 8.4 },
+  { id: "taco_164", category: "Frutas e derivados", name: "Abacaxi, cru", kcal: 48, prot: 0.9, carb: 12.3, fat: 0.1 },
+  { id: "taco_165", category: "Frutas e derivados", name: "Abacaxi, polpa, congelada", kcal: 31, prot: 0.5, carb: 7.8, fat: 0.1 },
+  { id: "taco_166", category: "Frutas e derivados", name: "Abiu, cru", kcal: 62, prot: 0.8, carb: 14.9, fat: 0.7 },
+  { id: "taco_167", category: "Frutas e derivados", name: "Açaí, polpa, com xarope de guaraná e glucose", kcal: 110, prot: 0.7, carb: 21.5, fat: 3.7 },
+  { id: "taco_168", category: "Frutas e derivados", name: "Açaí, polpa, congelada", kcal: 58, prot: 0.8, carb: 6.2, fat: 3.9 },
+  { id: "taco_169", category: "Frutas e derivados", name: "Acerola, crua", kcal: 33, prot: 0.9, carb: 8.0, fat: 0.2 },
+  { id: "taco_170", category: "Frutas e derivados", name: "Acerola, polpa, congelada", kcal: 22, prot: 0.6, carb: 5.5, fat: 0.0 },
+  { id: "taco_171", category: "Frutas e derivados", name: "Ameixa, calda, enlatada", kcal: 183, prot: 0.4, carb: 46.9, fat: 0.0 },
+  { id: "taco_172", category: "Frutas e derivados", name: "Ameixa, crua", kcal: 53, prot: 0.8, carb: 13.9, fat: 0.0 },
+  { id: "taco_173", category: "Frutas e derivados", name: "Ameixa, em calda, enlatada, drenada", kcal: 177, prot: 1.0, carb: 47.7, fat: 0.3 },
+  { id: "taco_174", category: "Frutas e derivados", name: "Atemóia, crua", kcal: 97, prot: 1.0, carb: 25.3, fat: 0.3 },
+  { id: "taco_175", category: "Frutas e derivados", name: "Banana, da terra, crua", kcal: 128, prot: 1.4, carb: 33.7, fat: 0.2 },
+  { id: "taco_176", category: "Frutas e derivados", name: "Banana, doce em barra", kcal: 280, prot: 2.2, carb: 75.7, fat: 0.1 },
+  { id: "taco_177", category: "Frutas e derivados", name: "Banana, figo, crua", kcal: 105, prot: 1.1, carb: 27.8, fat: 0.1 },
+  { id: "taco_178", category: "Frutas e derivados", name: "Banana, maçã, crua", kcal: 87, prot: 1.8, carb: 22.3, fat: 0.1 },
+  { id: "taco_179", category: "Frutas e derivados", name: "Banana, nanica, crua", kcal: 92, prot: 1.4, carb: 23.8, fat: 0.1 },
+  { id: "taco_180", category: "Frutas e derivados", name: "Banana, ouro, crua", kcal: 112, prot: 1.5, carb: 29.3, fat: 0.2 },
+  { id: "taco_181", category: "Frutas e derivados", name: "Banana, pacova, crua", kcal: 78, prot: 1.2, carb: 20.3, fat: 0.1 },
+  { id: "taco_182", category: "Frutas e derivados", name: "Banana, prata, crua", kcal: 98, prot: 1.3, carb: 26.0, fat: 0.1 },
+  { id: "taco_183", category: "Frutas e derivados", name: "Cacau, cru", kcal: 74, prot: 1.0, carb: 19.4, fat: 0.1 },
+  { id: "taco_184", category: "Frutas e derivados", name: "Cajá-Manga, cru", kcal: 46, prot: 1.3, carb: 11.4, fat: 0.0 },
+  { id: "taco_185", category: "Frutas e derivados", name: "Cajá, polpa, congelada", kcal: 26, prot: 0.6, carb: 6.4, fat: 0.2 },
+  { id: "taco_186", category: "Frutas e derivados", name: "Caju, cru", kcal: 43, prot: 1.0, carb: 10.3, fat: 0.3 },
+  { id: "taco_187", category: "Frutas e derivados", name: "Caju, polpa, congelada", kcal: 37, prot: 0.5, carb: 9.4, fat: 0.2 },
+  { id: "taco_188", category: "Frutas e derivados", name: "Caju, suco concentrado, envasado", kcal: 45, prot: 0.4, carb: 10.7, fat: 0.2 },
+  { id: "taco_189", category: "Frutas e derivados", name: "Caqui, chocolate, cru", kcal: 71, prot: 0.4, carb: 19.3, fat: 0.1 },
+  { id: "taco_190", category: "Frutas e derivados", name: "Carambola, crua", kcal: 46, prot: 0.9, carb: 11.5, fat: 0.2 },
+  { id: "taco_191", category: "Frutas e derivados", name: "Ciriguela, crua", kcal: 76, prot: 1.4, carb: 18.9, fat: 0.4 },
+  { id: "taco_192", category: "Frutas e derivados", name: "Cupuaçu, cru", kcal: 49, prot: 1.2, carb: 10.4, fat: 1.0 },
+  { id: "taco_193", category: "Frutas e derivados", name: "Cupuaçu, polpa, congelada", kcal: 49, prot: 0.8, carb: 11.4, fat: 0.6 },
+  { id: "taco_194", category: "Frutas e derivados", name: "Figo, cru", kcal: 41, prot: 1.0, carb: 10.2, fat: 0.2 },
+  { id: "taco_195", category: "Frutas e derivados", name: "Figo, enlatado, em calda", kcal: 184, prot: 0.6, carb: 50.3, fat: 0.2 },
+  { id: "taco_196", category: "Frutas e derivados", name: "Fruta-pão, crua", kcal: 67, prot: 1.1, carb: 17.2, fat: 0.2 },
+  { id: "taco_197", category: "Frutas e derivados", name: "Goiaba, branca, com casca, crua", kcal: 52, prot: 0.9, carb: 12.4, fat: 0.5 },
+  { id: "taco_198", category: "Frutas e derivados", name: "Goiaba, doce em pasta", kcal: 269, prot: 0.6, carb: 74.1, fat: 0.0 },
+  { id: "taco_199", category: "Frutas e derivados", name: "Goiaba, doce, cascão", kcal: 286, prot: 0.4, carb: 78.7, fat: 0.1 },
+  { id: "taco_200", category: "Frutas e derivados", name: "Goiaba, vermelha, com casca, crua", kcal: 54, prot: 1.1, carb: 13.0, fat: 0.4 },
+  { id: "taco_201", category: "Frutas e derivados", name: "Graviola, crua", kcal: 62, prot: 0.8, carb: 15.8, fat: 0.2 },
+  { id: "taco_202", category: "Frutas e derivados", name: "Graviola, polpa, congelada", kcal: 38, prot: 0.6, carb: 9.8, fat: 0.1 },
+  { id: "taco_203", category: "Frutas e derivados", name: "Jabuticaba, crua", kcal: 58, prot: 0.6, carb: 15.3, fat: 0.1 },
+  { id: "taco_204", category: "Frutas e derivados", name: "Jaca, crua", kcal: 88, prot: 1.4, carb: 22.5, fat: 0.3 },
+  { id: "taco_205", category: "Frutas e derivados", name: "Jambo, cru", kcal: 27, prot: 0.9, carb: 6.5, fat: 0.1 },
+  { id: "taco_206", category: "Frutas e derivados", name: "Jamelão, cru", kcal: 41, prot: 0.5, carb: 10.6, fat: 0.1 },
+  { id: "taco_207", category: "Frutas e derivados", name: "Kiwi, cru", kcal: 51, prot: 1.3, carb: 11.5, fat: 0.6 },
+  { id: "taco_208", category: "Frutas e derivados", name: "Laranja, baía, crua", kcal: 45, prot: 1.0, carb: 11.5, fat: 0.1 },
+  { id: "taco_209", category: "Frutas e derivados", name: "Laranja, baía, suco", kcal: 37, prot: 0.7, carb: 8.7, fat: 0.0 },
+  { id: "taco_210", category: "Frutas e derivados", name: "Laranja, da terra, crua", kcal: 51, prot: 1.1, carb: 12.9, fat: 0.2 },
+  { id: "taco_211", category: "Frutas e derivados", name: "Laranja, da terra, suco", kcal: 41, prot: 0.7, carb: 9.6, fat: 0.1 },
+  { id: "taco_212", category: "Frutas e derivados", name: "Laranja, lima, crua", kcal: 46, prot: 1.1, carb: 11.5, fat: 0.1 },
+  { id: "taco_213", category: "Frutas e derivados", name: "Laranja, lima, suco", kcal: 39, prot: 0.7, carb: 9.2, fat: 0.1 },
+  { id: "taco_214", category: "Frutas e derivados", name: "Laranja, pêra, crua", kcal: 37, prot: 1.0, carb: 8.9, fat: 0.1 },
+  { id: "taco_215", category: "Frutas e derivados", name: "Laranja, pêra, suco", kcal: 33, prot: 0.7, carb: 7.6, fat: 0.1 },
+  { id: "taco_216", category: "Frutas e derivados", name: "Laranja, valência, crua", kcal: 46, prot: 0.8, carb: 11.7, fat: 0.2 },
+  { id: "taco_217", category: "Frutas e derivados", name: "Laranja, valência, suco", kcal: 36, prot: 0.5, carb: 8.6, fat: 0.1 },
+  { id: "taco_218", category: "Frutas e derivados", name: "Limão, cravo, suco", kcal: 22, prot: 0.3, carb: 5.2, fat: 0.0 },
+  { id: "taco_219", category: "Frutas e derivados", name: "Limão, galego, suco", kcal: 14, prot: 0.6, carb: 7.3, fat: 0.1 },
+  { id: "taco_220", category: "Frutas e derivados", name: "Limão, tahiti, cru", kcal: 32, prot: 0.9, carb: 11.1, fat: 0.1 },
+  { id: "taco_221", category: "Frutas e derivados", name: "Maçã, Argentina, com casca, crua", kcal: 63, prot: 0.2, carb: 16.6, fat: 0.2 },
+  { id: "taco_222", category: "Frutas e derivados", name: "Maçã, Fuji, com casca, crua", kcal: 56, prot: 0.3, carb: 15.2, fat: 0.0 },
+  { id: "taco_223", category: "Frutas e derivados", name: "Macaúba, crua", kcal: 404, prot: 2.1, carb: 13.9, fat: 40.7 },
+  { id: "taco_224", category: "Frutas e derivados", name: "Mamão, doce em calda, drenado", kcal: 196, prot: 0.2, carb: 54.0, fat: 0.1 },
+  { id: "taco_225", category: "Frutas e derivados", name: "Mamão, Formosa, cru", kcal: 45, prot: 0.8, carb: 11.6, fat: 0.1 },
+  { id: "taco_226", category: "Frutas e derivados", name: "Mamão, Papaia, cru", kcal: 40, prot: 0.5, carb: 10.4, fat: 0.1 },
+  { id: "taco_227", category: "Frutas e derivados", name: "Mamão verde, doce em calda, drenado", kcal: 209, prot: 0.3, carb: 57.6, fat: 0.1 },
+  { id: "taco_228", category: "Frutas e derivados", name: "Manga, Haden, crua", kcal: 64, prot: 0.4, carb: 16.7, fat: 0.3 },
+  { id: "taco_229", category: "Frutas e derivados", name: "Manga, Palmer, crua", kcal: 72, prot: 0.4, carb: 19.4, fat: 0.2 },
+  { id: "taco_230", category: "Frutas e derivados", name: "Manga, polpa, congelada", kcal: 48, prot: 0.4, carb: 12.5, fat: 0.2 },
+  { id: "taco_231", category: "Frutas e derivados", name: "Manga, Tommy Atkins, crua", kcal: 51, prot: 0.9, carb: 12.8, fat: 0.2 },
+  { id: "taco_232", category: "Frutas e derivados", name: "Maracujá, cru", kcal: 68, prot: 2.0, carb: 12.3, fat: 2.1 },
+  { id: "taco_233", category: "Frutas e derivados", name: "Maracujá, polpa, congelada", kcal: 39, prot: 0.8, carb: 9.6, fat: 0.2 },
+  { id: "taco_234", category: "Frutas e derivados", name: "Maracujá, suco concentrado, envasado", kcal: 42, prot: 0.8, carb: 9.6, fat: 0.2 },
+  { id: "taco_235", category: "Frutas e derivados", name: "Melancia, crua", kcal: 33, prot: 0.9, carb: 8.1, fat: 0.0 },
+  { id: "taco_236", category: "Frutas e derivados", name: "Melão, cru", kcal: 29, prot: 0.7, carb: 7.5, fat: 0.0 },
+  { id: "taco_237", category: "Frutas e derivados", name: "Mexerica, Murcote, crua", kcal: 58, prot: 0.9, carb: 14.9, fat: 0.1 },
+  { id: "taco_238", category: "Frutas e derivados", name: "Mexerica, Rio, crua", kcal: 37, prot: 0.7, carb: 9.3, fat: 0.1 },
+  { id: "taco_239", category: "Frutas e derivados", name: "Morango, cru", kcal: 30, prot: 0.9, carb: 6.8, fat: 0.3 },
+  { id: "taco_240", category: "Frutas e derivados", name: "Nêspera, crua", kcal: 43, prot: 0.3, carb: 11.5, fat: 0.0 },
+  { id: "taco_241", category: "Frutas e derivados", name: "Pequi, cru", kcal: 205, prot: 2.3, carb: 13.0, fat: 18.0 },
+  { id: "taco_242", category: "Frutas e derivados", name: "Pêra, Park, crua", kcal: 61, prot: 0.2, carb: 16.1, fat: 0.2 },
+  { id: "taco_243", category: "Frutas e derivados", name: "Pêra, Williams, crua", kcal: 53, prot: 0.6, carb: 14.0, fat: 0.1 },
+  { id: "taco_244", category: "Frutas e derivados", name: "Pêssego, Aurora, cru", kcal: 36, prot: 0.8, carb: 9.3, fat: 0.0 },
+  { id: "taco_245", category: "Frutas e derivados", name: "Pêssego, enlatado, em calda", kcal: 63, prot: 0.7, carb: 16.9, fat: 0.0 },
+  { id: "taco_246", category: "Frutas e derivados", name: "Pinha, crua", kcal: 88, prot: 1.5, carb: 22.4, fat: 0.3 },
+  { id: "taco_247", category: "Frutas e derivados", name: "Pitanga, crua", kcal: 41, prot: 0.9, carb: 10.2, fat: 0.2 },
+  { id: "taco_248", category: "Frutas e derivados", name: "Pitanga, polpa, congelada", kcal: 19, prot: 0.3, carb: 4.8, fat: 0.1 },
+  { id: "taco_249", category: "Frutas e derivados", name: "Romã, crua", kcal: 56, prot: 0.4, carb: 15.1, fat: 0.0 },
+  { id: "taco_250", category: "Frutas e derivados", name: "Tamarindo, cru", kcal: 276, prot: 3.2, carb: 72.5, fat: 0.5 },
+  { id: "taco_251", category: "Frutas e derivados", name: "Tangerina, Poncã, crua", kcal: 38, prot: 0.8, carb: 9.6, fat: 0.1 },
+  { id: "taco_252", category: "Frutas e derivados", name: "Tangerina, Poncã, suco", kcal: 36, prot: 0.5, carb: 8.8, fat: 0.0 },
+  { id: "taco_253", category: "Frutas e derivados", name: "Tucumã, cru", kcal: 262, prot: 2.1, carb: 26.5, fat: 19.1 },
+  { id: "taco_254", category: "Frutas e derivados", name: "Umbu, cru", kcal: 37, prot: 0.8, carb: 9.4, fat: 0.0 },
+  { id: "taco_255", category: "Frutas e derivados", name: "Umbu, polpa, congelada", kcal: 34, prot: 0.5, carb: 8.8, fat: 0.1 },
+  { id: "taco_256", category: "Frutas e derivados", name: "Uva, Itália, crua", kcal: 53, prot: 0.7, carb: 13.6, fat: 0.2 },
+  { id: "taco_257", category: "Frutas e derivados", name: "Uva, Rubi, crua", kcal: 49, prot: 0.6, carb: 12.7, fat: 0.2 },
+  { id: "taco_258", category: "Frutas e derivados", name: "Uva, suco concentrado, envasado", kcal: 58, prot: 0.0, carb: 14.7, fat: 0.0 },
+  { id: "taco_259", category: "Gorduras e óleos", name: "Azeite, de dendê", kcal: 884, prot: 0.0, carb: 0.0, fat: 100.0 },
+  { id: "taco_260", category: "Gorduras e óleos", name: "Azeite, de oliva, extra virgem", kcal: 884, prot: 0.0, carb: 0.0, fat: 100.0 },
+  { id: "taco_261", category: "Gorduras e óleos", name: "Manteiga, com sal", kcal: 726, prot: 0.4, carb: 0.1, fat: 82.4 },
+  { id: "taco_262", category: "Gorduras e óleos", name: "Manteiga, sem sal", kcal: 758, prot: 0.4, carb: 0.0, fat: 86.0 },
+  { id: "taco_263", category: "Gorduras e óleos", name: "Margarina, com óleo hidrogenado, com sal (65% de lipídeos)", kcal: 596, prot: 0.0, carb: 0.0, fat: 67.4 },
+  { id: "taco_264", category: "Gorduras e óleos", name: "Margarina, com óleo hidrogenado, sem sal (80% de lipídeos)", kcal: 723, prot: 0.0, carb: 0.0, fat: 81.7 },
+  { id: "taco_265", category: "Gorduras e óleos", name: "Margarina, com óleo interesterificado, com sal (65% de lipídeos)", kcal: 594, prot: 0.0, carb: 0.0, fat: 67.2 },
+  { id: "taco_266", category: "Gorduras e óleos", name: "Margarina, com óleo interesterificado, sem sal (65% de lipídeos)", kcal: 593, prot: 0.0, carb: 0.0, fat: 67.1 },
+  { id: "taco_267", category: "Gorduras e óleos", name: "Óleo, de babaçu", kcal: 884, prot: 0.0, carb: 0.0, fat: 100.0 },
+  { id: "taco_268", category: "Gorduras e óleos", name: "Óleo, de canola", kcal: 884, prot: 0.0, carb: 0.0, fat: 100.0 },
+  { id: "taco_269", category: "Gorduras e óleos", name: "Óleo, de girassol", kcal: 884, prot: 0.0, carb: 0.0, fat: 100.0 },
+  { id: "taco_270", category: "Gorduras e óleos", name: "Óleo, de milho", kcal: 884, prot: 0.0, carb: 0.0, fat: 100.0 },
+  { id: "taco_271", category: "Gorduras e óleos", name: "Óleo, de pequi", kcal: 884, prot: 0.0, carb: 0.0, fat: 100.0 },
+  { id: "taco_272", category: "Gorduras e óleos", name: "Óleo, de soja", kcal: 884, prot: 0.0, carb: 0.0, fat: 100.0 },
+  { id: "taco_273", category: "Pescados e frutos do mar", name: "Abadejo, filé, congelado, assado", kcal: 112, prot: 23.5, carb: 0.0, fat: 1.2 },
+  { id: "taco_274", category: "Pescados e frutos do mar", name: "Abadejo, filé, congelado, cozido", kcal: 91, prot: 19.3, carb: 0.0, fat: 0.9 },
+  { id: "taco_275", category: "Pescados e frutos do mar", name: "Abadejo, filé, congelado, cru", kcal: 59, prot: 13.1, carb: 0.0, fat: 0.4 },
+  { id: "taco_276", category: "Pescados e frutos do mar", name: "Abadejo, filé, congelado, grelhado", kcal: 130, prot: 27.6, carb: 0.0, fat: 1.3 },
+  { id: "taco_277", category: "Pescados e frutos do mar", name: "Atum, conserva em óleo", kcal: 166, prot: 26.2, carb: 0.0, fat: 6.0 },
+  { id: "taco_278", category: "Pescados e frutos do mar", name: "Atum, fresco, cru", kcal: 118, prot: 25.7, carb: 0.0, fat: 0.9 },
+  { id: "taco_279", category: "Pescados e frutos do mar", name: "Bacalhau, salgado, cru", kcal: 136, prot: 29.0, carb: 0.0, fat: 1.3 },
+  { id: "taco_280", category: "Pescados e frutos do mar", name: "Bacalhau, salgado, refogado", kcal: 140, prot: 24.0, carb: 1.2, fat: 3.6 },
+  { id: "taco_281", category: "Pescados e frutos do mar", name: "Cação, posta, com farinha de trigo, frita", kcal: 208, prot: 25.0, carb: 3.1, fat: 10.0 },
+  { id: "taco_282", category: "Pescados e frutos do mar", name: "Cação, posta, cozida", kcal: 116, prot: 25.6, carb: 0.0, fat: 0.7 },
+  { id: "taco_283", category: "Pescados e frutos do mar", name: "Cação, posta, crua", kcal: 83, prot: 17.9, carb: 0.0, fat: 0.8 },
+  { id: "taco_284", category: "Pescados e frutos do mar", name: "Camarão, Rio Grande, grande, cozido", kcal: 90, prot: 19.0, carb: 0.0, fat: 1.0 },
+  { id: "taco_285", category: "Pescados e frutos do mar", name: "Camarão, Rio Grande, grande, cru", kcal: 47, prot: 10.0, carb: 0.0, fat: 0.5 },
+  { id: "taco_286", category: "Pescados e frutos do mar", name: "Camarão, Sete Barbas, sem cabeça, com casca, frito", kcal: 231, prot: 18.4, carb: 2.9, fat: 15.6 },
+  { id: "taco_287", category: "Pescados e frutos do mar", name: "Caranguejo, cozido", kcal: 83, prot: 18.5, carb: 0.0, fat: 0.4 },
+  { id: "taco_288", category: "Pescados e frutos do mar", name: "Corimba, cru", kcal: 128, prot: 17.4, carb: 0.0, fat: 6.0 },
+  { id: "taco_289", category: "Pescados e frutos do mar", name: "Corimbatá, assado", kcal: 261, prot: 19.9, carb: 0.0, fat: 19.6 },
+  { id: "taco_290", category: "Pescados e frutos do mar", name: "Corimbatá, cozido", kcal: 239, prot: 20.1, carb: 0.0, fat: 16.9 },
+  { id: "taco_291", category: "Pescados e frutos do mar", name: "Corvina de água doce, crua", kcal: 101, prot: 18.9, carb: 0.0, fat: 2.2 },
+  { id: "taco_292", category: "Pescados e frutos do mar", name: "Corvina do mar, crua", kcal: 94, prot: 18.6, carb: 0.0, fat: 1.6 },
+  { id: "taco_293", category: "Pescados e frutos do mar", name: "Corvina grande, assada", kcal: 147, prot: 26.8, carb: 0.0, fat: 3.6 },
+  { id: "taco_294", category: "Pescados e frutos do mar", name: "Corvina grande, cozida", kcal: 100, prot: 23.4, carb: 0.0, fat: 2.6 },
+  { id: "taco_295", category: "Pescados e frutos do mar", name: "Dourada de água doce, fresca", kcal: 131, prot: 18.8, carb: 0.0, fat: 5.6 },
+  { id: "taco_296", category: "Pescados e frutos do mar", name: "Lambari, congelado, cru", kcal: 131, prot: 16.8, carb: 0.0, fat: 6.5 },
+  { id: "taco_297", category: "Pescados e frutos do mar", name: "Lambari, congelado, frito", kcal: 327, prot: 28.4, carb: 0.0, fat: 22.8 },
+  { id: "taco_298", category: "Pescados e frutos do mar", name: "Lambari, fresco, cru", kcal: 152, prot: 15.7, carb: 0.0, fat: 9.4 },
+  { id: "taco_299", category: "Pescados e frutos do mar", name: "Manjuba, com farinha de trigo, frita", kcal: 344, prot: 23.5, carb: 10.2, fat: 22.6 },
+  { id: "taco_300", category: "Pescados e frutos do mar", name: "Manjuba, frita", kcal: 349, prot: 30.1, carb: 0.0, fat: 24.5 },
+  { id: "taco_301", category: "Pescados e frutos do mar", name: "Merluza, filé, assado", kcal: 122, prot: 26.6, carb: 0.0, fat: 0.9 },
+  { id: "taco_302", category: "Pescados e frutos do mar", name: "Merluza, filé, cru", kcal: 89, prot: 16.6, carb: 0.0, fat: 2.0 },
+  { id: "taco_303", category: "Pescados e frutos do mar", name: "Merluza, filé, frito", kcal: 192, prot: 26.9, carb: 0.0, fat: 8.5 },
+  { id: "taco_304", category: "Pescados e frutos do mar", name: "Pescada, branca, crua", kcal: 111, prot: 16.3, carb: 0.0, fat: 4.6 },
+  { id: "taco_305", category: "Pescados e frutos do mar", name: "Pescada, branca, frita", kcal: 223, prot: 27.4, carb: 0.0, fat: 11.8 },
+  { id: "taco_306", category: "Pescados e frutos do mar", name: "Pescada, filé, com farinha de trigo, frito", kcal: 283, prot: 21.4, carb: 5.0, fat: 19.1 },
+  { id: "taco_307", category: "Pescados e frutos do mar", name: "Pescada, filé, cru", kcal: 107, prot: 16.7, carb: 0.0, fat: 4.0 },
+  { id: "taco_308", category: "Pescados e frutos do mar", name: "Pescada, filé, frito", kcal: 154, prot: 28.6, carb: 0.0, fat: 3.6 },
+  { id: "taco_309", category: "Pescados e frutos do mar", name: "Pescada, filé, molho escabeche", kcal: 142, prot: 11.8, carb: 5.0, fat: 8.0 },
+  { id: "taco_310", category: "Pescados e frutos do mar", name: "Pescadinha, crua", kcal: 76, prot: 15.5, carb: 0.0, fat: 1.1 },
+  { id: "taco_311", category: "Pescados e frutos do mar", name: "Pintado, assado", kcal: 192, prot: 36.5, carb: 0.0, fat: 4.0 },
+  { id: "taco_312", category: "Pescados e frutos do mar", name: "Pintado, cru", kcal: 91, prot: 18.6, carb: 0.0, fat: 1.3 },
+  { id: "taco_313", category: "Pescados e frutos do mar", name: "Pintado, grelhado", kcal: 152, prot: 30.8, carb: 0.0, fat: 2.3 },
+  { id: "taco_314", category: "Pescados e frutos do mar", name: "Porquinho, cru", kcal: 93, prot: 20.5, carb: 0.0, fat: 0.6 },
+  { id: "taco_315", category: "Pescados e frutos do mar", name: "Salmão, filé, com pele, fresco, grelhado", kcal: 229, prot: 23.9, carb: 0.0, fat: 14.0 },
+  { id: "taco_316", category: "Pescados e frutos do mar", name: "Salmão, sem pele, fresco, cru", kcal: 170, prot: 19.3, carb: 0.0, fat: 9.7 },
+  { id: "taco_317", category: "Pescados e frutos do mar", name: "Salmão, sem pele, fresco, grelhado", kcal: 243, prot: 26.1, carb: 0.0, fat: 14.5 },
+  { id: "taco_318", category: "Pescados e frutos do mar", name: "Sardinha, assada", kcal: 164, prot: 32.2, carb: 0.0, fat: 3.0 },
+  { id: "taco_319", category: "Pescados e frutos do mar", name: "Sardinha, conserva em óleo", kcal: 285, prot: 15.9, carb: 0.0, fat: 24.0 },
+  { id: "taco_320", category: "Pescados e frutos do mar", name: "Sardinha, frita", kcal: 257, prot: 33.4, carb: 0.0, fat: 12.7 },
+  { id: "taco_321", category: "Pescados e frutos do mar", name: "Sardinha, inteira, crua", kcal: 114, prot: 21.1, carb: 0.0, fat: 2.7 },
+  { id: "taco_322", category: "Pescados e frutos do mar", name: "Tucunaré, filé, congelado, cru", kcal: 88, prot: 18.0, carb: 0.0, fat: 1.2 },
+  { id: "taco_323", category: "Carnes e derivados", name: "Apresuntado", kcal: 129, prot: 13.5, carb: 2.9, fat: 6.7 },
+  { id: "taco_324", category: "Carnes e derivados", name: "Caldo de carne, tablete", kcal: 241, prot: 7.8, carb: 15.1, fat: 16.6 },
+  { id: "taco_325", category: "Carnes e derivados", name: "Caldo de galinha, tablete", kcal: 251, prot: 6.3, carb: 10.6, fat: 20.4 },
+  { id: "taco_326", category: "Carnes e derivados", name: "Carne, bovina, acém, moído, cozido", kcal: 212, prot: 26.7, carb: 0.0, fat: 10.9 },
+  { id: "taco_327", category: "Carnes e derivados", name: "Carne, bovina, acém, moído, cru", kcal: 137, prot: 19.4, carb: 0.0, fat: 5.9 },
+  { id: "taco_328", category: "Carnes e derivados", name: "Carne, bovina, acém, sem gordura, cozido", kcal: 215, prot: 27.3, carb: 0.0, fat: 10.9 },
+  { id: "taco_329", category: "Carnes e derivados", name: "Carne, bovina, acém, sem gordura, cru", kcal: 144, prot: 20.8, carb: 0.0, fat: 6.1 },
+  { id: "taco_330", category: "Carnes e derivados", name: "Carne, bovina, almôndegas, cruas", kcal: 189, prot: 12.3, carb: 9.8, fat: 11.2 },
+  { id: "taco_331", category: "Carnes e derivados", name: "Carne, bovina, almôndegas, fritas", kcal: 272, prot: 18.2, carb: 14.3, fat: 15.8 },
+  { id: "taco_332", category: "Carnes e derivados", name: "Carne, bovina, bucho, cozido", kcal: 133, prot: 21.6, carb: 0.0, fat: 4.5 },
+  { id: "taco_333", category: "Carnes e derivados", name: "Carne, bovina, bucho, cru", kcal: 137, prot: 20.5, carb: 0.0, fat: 5.5 },
+  { id: "taco_334", category: "Carnes e derivados", name: "Carne, bovina, capa de contra-filé, com gordura, crua", kcal: 217, prot: 19.2, carb: 0.0, fat: 15.0 },
+  { id: "taco_335", category: "Carnes e derivados", name: "Carne, bovina, capa de contra-filé, com gordura, grelhada", kcal: 312, prot: 30.7, carb: 0.0, fat: 20.0 },
+  { id: "taco_336", category: "Carnes e derivados", name: "Carne, bovina, capa de contra-filé, sem gordura, crua", kcal: 131, prot: 21.5, carb: 0.0, fat: 4.3 },
+  { id: "taco_337", category: "Carnes e derivados", name: "Carne, bovina, capa de contra-filé, sem gordura, grelhada", kcal: 239, prot: 35.1, carb: 0.0, fat: 10.0 },
+  { id: "taco_338", category: "Carnes e derivados", name: "Carne, bovina, charque, cozido", kcal: 263, prot: 36.4, carb: 0.0, fat: 11.9 },
+  { id: "taco_339", category: "Carnes e derivados", name: "Carne, bovina, charque, cru", kcal: 249, prot: 22.7, carb: 0.0, fat: 16.8 },
+  { id: "taco_340", category: "Carnes e derivados", name: "Carne, bovina, contra-filé, à milanesa", kcal: 352, prot: 20.6, carb: 12.2, fat: 24.0 },
+  { id: "taco_341", category: "Carnes e derivados", name: "Carne, bovina, contra-filé de costela, cru", kcal: 202, prot: 19.8, carb: 0.0, fat: 13.1 },
+  { id: "taco_342", category: "Carnes e derivados", name: "Carne, bovina, contra-filé de costela, grelhado", kcal: 275, prot: 29.9, carb: 0.0, fat: 16.3 },
+  { id: "taco_343", category: "Carnes e derivados", name: "Carne, bovina, contra-filé, com gordura, cru", kcal: 206, prot: 21.2, carb: 0.0, fat: 12.8 },
+  { id: "taco_344", category: "Carnes e derivados", name: "Carne, bovina, contra-filé, com gordura, grelhado", kcal: 278, prot: 32.4, carb: 0.0, fat: 15.5 },
+  { id: "taco_345", category: "Carnes e derivados", name: "Carne, bovina, contra-filé, sem gordura, cru", kcal: 157, prot: 24.0, carb: 0.0, fat: 6.0 },
+  { id: "taco_346", category: "Carnes e derivados", name: "Carne, bovina, contra-filé, sem gordura, grelhado", kcal: 194, prot: 35.9, carb: 0.0, fat: 4.5 },
+  { id: "taco_347", category: "Carnes e derivados", name: "Carne, bovina, costela, assada", kcal: 373, prot: 28.8, carb: 0.0, fat: 27.7 },
+  { id: "taco_348", category: "Carnes e derivados", name: "Carne, bovina, costela, crua", kcal: 358, prot: 16.7, carb: 0.0, fat: 31.8 },
+  { id: "taco_349", category: "Carnes e derivados", name: "Carne, bovina, coxão duro, sem gordura, cozido", kcal: 217, prot: 31.9, carb: 0.0, fat: 8.9 },
+  { id: "taco_350", category: "Carnes e derivados", name: "Carne, bovina, coxão duro, sem gordura, cru", kcal: 148, prot: 21.5, carb: 0.0, fat: 6.2 },
+  { id: "taco_351", category: "Carnes e derivados", name: "Carne, bovina, coxão mole, sem gordura, cozido", kcal: 219, prot: 32.4, carb: 0.0, fat: 8.9 },
+  { id: "taco_352", category: "Carnes e derivados", name: "Carne, bovina, coxão mole, sem gordura, cru", kcal: 169, prot: 21.2, carb: 0.0, fat: 8.7 },
+  { id: "taco_353", category: "Carnes e derivados", name: "Carne, bovina, cupim, assado", kcal: 330, prot: 28.6, carb: 0.0, fat: 23.0 },
+  { id: "taco_354", category: "Carnes e derivados", name: "Carne, bovina, cupim, cru", kcal: 221, prot: 19.5, carb: 0.0, fat: 15.3 },
+  { id: "taco_355", category: "Carnes e derivados", name: "Carne, bovina, fígado, cru", kcal: 141, prot: 20.7, carb: 1.1, fat: 5.4 },
+  { id: "taco_356", category: "Carnes e derivados", name: "Carne, bovina, fígado, grelhado", kcal: 225, prot: 29.9, carb: 4.2, fat: 9.0 },
+  { id: "taco_357", category: "Carnes e derivados", name: "Carne, bovina, filé mingnon, sem gordura, cru", kcal: 143, prot: 21.6, carb: 0.0, fat: 5.6 },
+  { id: "taco_358", category: "Carnes e derivados", name: "Carne, bovina, filé mingnon, sem gordura, grelhado", kcal: 220, prot: 32.8, carb: 0.0, fat: 8.8 },
+  { id: "taco_359", category: "Carnes e derivados", name: "Carne, bovina, flanco, sem gordura, cozido", kcal: 196, prot: 29.4, carb: 0.0, fat: 7.8 },
+  { id: "taco_360", category: "Carnes e derivados", name: "Carne, bovina, flanco, sem gordura, cru", kcal: 141, prot: 20.0, carb: 0.0, fat: 6.2 },
+  { id: "taco_361", category: "Carnes e derivados", name: "Carne, bovina, fraldinha, com gordura, cozida", kcal: 338, prot: 24.2, carb: 0.0, fat: 26.0 },
+  { id: "taco_362", category: "Carnes e derivados", name: "Carne, bovina, fraldinha, com gordura, crua", kcal: 221, prot: 17.6, carb: 0.0, fat: 16.1 },
+  { id: "taco_363", category: "Carnes e derivados", name: "Carne, bovina, lagarto, cozido", kcal: 222, prot: 32.9, carb: 0.0, fat: 9.1 },
+  { id: "taco_364", category: "Carnes e derivados", name: "Carne, bovina, lagarto, cru", kcal: 135, prot: 20.5, carb: 0.0, fat: 5.2 },
+  { id: "taco_365", category: "Carnes e derivados", name: "Carne, bovina, língua, cozida", kcal: 315, prot: 21.4, carb: 0.0, fat: 24.8 },
+  { id: "taco_366", category: "Carnes e derivados", name: "Carne, bovina, língua, crua", kcal: 215, prot: 17.1, carb: 0.0, fat: 15.8 },
+  { id: "taco_367", category: "Carnes e derivados", name: "Carne, bovina, maminha, crua", kcal: 153, prot: 20.9, carb: 0.0, fat: 7.0 },
+  { id: "taco_368", category: "Carnes e derivados", name: "Carne, bovina, maminha, grelhada", kcal: 153, prot: 30.7, carb: 0.0, fat: 2.4 },
+  { id: "taco_369", category: "Carnes e derivados", name: "Carne, bovina, miolo de alcatra, sem gordura, cru", kcal: 163, prot: 21.6, carb: 0.0, fat: 7.8 },
+  { id: "taco_370", category: "Carnes e derivados", name: "Carne, bovina, miolo de alcatra, sem gordura, grelhado", kcal: 241, prot: 31.9, carb: 0.0, fat: 11.6 },
+  { id: "taco_371", category: "Carnes e derivados", name: "Carne, bovina, músculo, sem gordura, cozido", kcal: 194, prot: 31.2, carb: 0.0, fat: 6.7 },
+  { id: "taco_372", category: "Carnes e derivados", name: "Carne, bovina, músculo, sem gordura, cru", kcal: 142, prot: 21.6, carb: 0.0, fat: 5.5 },
+  { id: "taco_373", category: "Carnes e derivados", name: "Carne, bovina, paleta, com gordura, crua", kcal: 159, prot: 21.4, carb: 0.0, fat: 7.5 },
+  { id: "taco_374", category: "Carnes e derivados", name: "Carne, bovina, paleta, sem gordura, cozida", kcal: 194, prot: 29.7, carb: 0.0, fat: 7.4 },
+  { id: "taco_375", category: "Carnes e derivados", name: "Carne, bovina, paleta, sem gordura, crua", kcal: 141, prot: 21.0, carb: 0.0, fat: 5.7 },
+  { id: "taco_376", category: "Carnes e derivados", name: "Carne, bovina, patinho, sem gordura, cru", kcal: 133, prot: 21.7, carb: 0.0, fat: 4.5 },
+  { id: "taco_377", category: "Carnes e derivados", name: "Carne, bovina, patinho, sem gordura, grelhado", kcal: 219, prot: 35.9, carb: 0.0, fat: 7.3 },
+  { id: "taco_378", category: "Carnes e derivados", name: "Carne, bovina, peito, sem gordura, cozido", kcal: 338, prot: 22.2, carb: 0.0, fat: 27.0 },
+  { id: "taco_379", category: "Carnes e derivados", name: "Carne, bovina, peito, sem gordura, cru", kcal: 259, prot: 17.6, carb: 0.0, fat: 20.4 },
+  { id: "taco_380", category: "Carnes e derivados", name: "Carne, bovina, picanha, com gordura, crua", kcal: 213, prot: 18.8, carb: 0.0, fat: 14.7 },
+  { id: "taco_381", category: "Carnes e derivados", name: "Carne, bovina, picanha, com gordura, grelhada", kcal: 289, prot: 26.4, carb: 0.0, fat: 19.5 },
+  { id: "taco_382", category: "Carnes e derivados", name: "Carne, bovina, picanha, sem gordura, crua", kcal: 134, prot: 21.3, carb: 0.0, fat: 4.7 },
+  { id: "taco_383", category: "Carnes e derivados", name: "Carne, bovina, picanha, sem gordura, grelhada", kcal: 238, prot: 31.9, carb: 0.0, fat: 11.3 },
+  { id: "taco_384", category: "Carnes e derivados", name: "Carne, bovina, seca, cozida", kcal: 313, prot: 26.9, carb: 0.0, fat: 21.9 },
+  { id: "taco_385", category: "Carnes e derivados", name: "Carne, bovina, seca, crua", kcal: 313, prot: 19.7, carb: 0.0, fat: 25.4 },
+  { id: "taco_386", category: "Carnes e derivados", name: "Coxinha de frango, frita", kcal: 283, prot: 9.6, carb: 34.5, fat: 11.8 },
+  { id: "taco_387", category: "Carnes e derivados", name: "Croquete, de carne, cru", kcal: 246, prot: 12.0, carb: 13.9, fat: 15.6 },
+  { id: "taco_388", category: "Carnes e derivados", name: "Croquete, de carne, frito", kcal: 347, prot: 16.9, carb: 18.1, fat: 22.7 },
+  { id: "taco_389", category: "Carnes e derivados", name: "Empada de frango, pré-cozida, assada", kcal: 358, prot: 6.9, carb: 47.5, fat: 15.6 },
+  { id: "taco_390", category: "Carnes e derivados", name: "Empada, de frango, pré-cozida", kcal: 377, prot: 7.3, carb: 35.5, fat: 22.9 },
+  { id: "taco_391", category: "Carnes e derivados", name: "Frango, asa, com pele, crua", kcal: 213, prot: 18.1, carb: 0.0, fat: 15.1 },
+  { id: "taco_392", category: "Carnes e derivados", name: "Frango, caipira, inteiro, com pele, cozido", kcal: 243, prot: 23.9, carb: 0.0, fat: 15.6 },
+  { id: "taco_393", category: "Carnes e derivados", name: "Frango, caipira, inteiro, sem pele, cozido", kcal: 196, prot: 29.6, carb: 0.0, fat: 7.7 },
+  { id: "taco_394", category: "Carnes e derivados", name: "Frango, coração, cru", kcal: 222, prot: 12.6, carb: 0.0, fat: 18.6 },
+  { id: "taco_395", category: "Carnes e derivados", name: "Frango, coração, grelhado", kcal: 207, prot: 22.4, carb: 0.6, fat: 12.1 },
+  { id: "taco_396", category: "Carnes e derivados", name: "Frango, coxa, com pele, assada", kcal: 215, prot: 28.5, carb: 0.1, fat: 10.4 },
+  { id: "taco_397", category: "Carnes e derivados", name: "Frango, coxa, com pele, crua", kcal: 161, prot: 17.1, carb: 0.0, fat: 9.8 },
+  { id: "taco_398", category: "Carnes e derivados", name: "Frango, coxa, sem pele, cozida", kcal: 167, prot: 26.9, carb: 0.0, fat: 5.8 },
+  { id: "taco_399", category: "Carnes e derivados", name: "Frango, coxa, sem pele, crua", kcal: 120, prot: 17.8, carb: 0.0, fat: 4.9 },
+  { id: "taco_400", category: "Carnes e derivados", name: "Frango, fígado, cru", kcal: 106, prot: 17.6, carb: 0.0, fat: 3.5 },
+  { id: "taco_401", category: "Carnes e derivados", name: "Frango, filé, à milanesa", kcal: 221, prot: 28.5, carb: 7.5, fat: 7.8 },
+  { id: "taco_402", category: "Carnes e derivados", name: "Frango, inteiro, com pele, cru", kcal: 226, prot: 16.4, carb: 0.0, fat: 17.3 },
+  { id: "taco_403", category: "Carnes e derivados", name: "Frango, inteiro, sem pele, assado", kcal: 187, prot: 28.0, carb: 0.0, fat: 7.5 },
+  { id: "taco_404", category: "Carnes e derivados", name: "Frango, inteiro, sem pele, cozido", kcal: 170, prot: 25.0, carb: 0.0, fat: 7.1 },
+  { id: "taco_405", category: "Carnes e derivados", name: "Frango, inteiro, sem pele, cru", kcal: 129, prot: 20.6, carb: 0.0, fat: 4.6 },
+  { id: "taco_406", category: "Carnes e derivados", name: "Frango, peito, com pele, assado", kcal: 212, prot: 33.4, carb: 0.0, fat: 7.6 },
+  { id: "taco_407", category: "Carnes e derivados", name: "Frango, peito, com pele, cru", kcal: 149, prot: 20.8, carb: 0.0, fat: 6.7 },
+  { id: "taco_408", category: "Carnes e derivados", name: "Frango, peito, sem pele, cozido", kcal: 163, prot: 31.5, carb: 0.0, fat: 3.2 },
+  { id: "taco_409", category: "Carnes e derivados", name: "Frango, peito, sem pele, cru", kcal: 119, prot: 21.5, carb: 0.0, fat: 3.0 },
+  { id: "taco_410", category: "Carnes e derivados", name: "Frango, peito, sem pele, grelhado", kcal: 159, prot: 32.0, carb: 0.0, fat: 2.5 },
+  { id: "taco_411", category: "Carnes e derivados", name: "Frango, sobrecoxa, com pele, assada", kcal: 260, prot: 28.7, carb: 0.0, fat: 15.2 },
+  { id: "taco_412", category: "Carnes e derivados", name: "Frango, sobrecoxa, com pele, crua", kcal: 255, prot: 15.5, carb: 0.0, fat: 20.9 },
+  { id: "taco_413", category: "Carnes e derivados", name: "Frango, sobrecoxa, sem pele, assada", kcal: 233, prot: 29.2, carb: 0.0, fat: 12.0 },
+  { id: "taco_414", category: "Carnes e derivados", name: "Frango, sobrecoxa, sem pele, crua", kcal: 162, prot: 17.6, carb: 0.0, fat: 9.6 },
+  { id: "taco_415", category: "Carnes e derivados", name: "Hambúrguer, bovino, cru", kcal: 215, prot: 13.2, carb: 4.2, fat: 16.2 },
+  { id: "taco_416", category: "Carnes e derivados", name: "Hambúrguer, bovino, frito", kcal: 258, prot: 20.0, carb: 6.3, fat: 17.0 },
+  { id: "taco_417", category: "Carnes e derivados", name: "Hambúrguer, bovino, grelhado", kcal: 210, prot: 13.2, carb: 11.3, fat: 12.4 },
+  { id: "taco_418", category: "Carnes e derivados", name: "Lingüiça, frango, crua", kcal: 218, prot: 14.2, carb: 0.0, fat: 17.4 },
+  { id: "taco_419", category: "Carnes e derivados", name: "Lingüiça, frango, frita", kcal: 245, prot: 18.3, carb: 0.0, fat: 18.5 },
+  { id: "taco_420", category: "Carnes e derivados", name: "Lingüiça, frango, grelhada", kcal: 244, prot: 18.2, carb: 0.0, fat: 18.4 },
+  { id: "taco_421", category: "Carnes e derivados", name: "Lingüiça, porco, crua", kcal: 227, prot: 16.1, carb: 0.0, fat: 17.6 },
+  { id: "taco_422", category: "Carnes e derivados", name: "Lingüiça, porco, frita", kcal: 280, prot: 20.5, carb: 0.0, fat: 21.3 },
+  { id: "taco_423", category: "Carnes e derivados", name: "Lingüiça, porco, grelhada", kcal: 296, prot: 23.2, carb: 0.0, fat: 21.9 },
+  { id: "taco_424", category: "Carnes e derivados", name: "Mortadela", kcal: 269, prot: 12.0, carb: 5.8, fat: 21.6 },
+  { id: "taco_425", category: "Carnes e derivados", name: "Peru, congelado, assado", kcal: 163, prot: 26.2, carb: 0.0, fat: 5.7 },
+  { id: "taco_426", category: "Carnes e derivados", name: "Peru, congelado, cru", kcal: 94, prot: 18.1, carb: 0.0, fat: 1.8 },
+  { id: "taco_427", category: "Carnes e derivados", name: "Porco, bisteca, crua", kcal: 164, prot: 21.5, carb: 0.0, fat: 8.0 },
+  { id: "taco_428", category: "Carnes e derivados", name: "Porco, bisteca, frita", kcal: 311, prot: 33.7, carb: 0.0, fat: 18.5 },
+  { id: "taco_429", category: "Carnes e derivados", name: "Porco, bisteca, grelhada", kcal: 280, prot: 28.9, carb: 0.0, fat: 17.4 },
+  { id: "taco_430", category: "Carnes e derivados", name: "Porco, costela, assada", kcal: 402, prot: 30.2, carb: 0.0, fat: 30.3 },
+  { id: "taco_431", category: "Carnes e derivados", name: "Porco, costela, crua", kcal: 256, prot: 18.0, carb: 0.0, fat: 19.8 },
+  { id: "taco_432", category: "Carnes e derivados", name: "Porco, lombo, assado", kcal: 210, prot: 35.7, carb: 0.0, fat: 6.4 },
+  { id: "taco_433", category: "Carnes e derivados", name: "Porco, lombo, cru", kcal: 176, prot: 22.6, carb: 0.0, fat: 8.8 },
+  { id: "taco_434", category: "Carnes e derivados", name: "Porco, orelha, salgada, crua", kcal: 258, prot: 18.5, carb: 0.0, fat: 19.9 },
+  { id: "taco_435", category: "Carnes e derivados", name: "Porco, pernil, assado", kcal: 262, prot: 32.1, carb: 0.0, fat: 13.9 },
+  { id: "taco_436", category: "Carnes e derivados", name: "Porco, pernil, cru", kcal: 186, prot: 20.1, carb: 0.0, fat: 11.1 },
+  { id: "taco_437", category: "Carnes e derivados", name: "Porco, rabo, salgado, cru", kcal: 377, prot: 15.6, carb: 0.0, fat: 34.5 },
+  { id: "taco_438", category: "Carnes e derivados", name: "Presunto, com capa de gordura", kcal: 128, prot: 14.4, carb: 1.4, fat: 6.8 },
+  { id: "taco_439", category: "Carnes e derivados", name: "Presunto, sem capa de gordura", kcal: 94, prot: 14.3, carb: 2.1, fat: 2.7 },
+  { id: "taco_440", category: "Carnes e derivados", name: "Quibe, assado", kcal: 136, prot: 14.6, carb: 12.9, fat: 2.7 },
+  { id: "taco_441", category: "Carnes e derivados", name: "Quibe, cru", kcal: 109, prot: 12.4, carb: 10.8, fat: 1.7 },
+  { id: "taco_442", category: "Carnes e derivados", name: "Quibe, frito", kcal: 254, prot: 14.9, carb: 12.3, fat: 15.8 },
+  { id: "taco_443", category: "Carnes e derivados", name: "Salame", kcal: 398, prot: 25.8, carb: 2.9, fat: 30.6 },
+  { id: "taco_444", category: "Carnes e derivados", name: "Toucinho, cru", kcal: 593, prot: 11.5, carb: 0.0, fat: 60.3 },
+  { id: "taco_445", category: "Carnes e derivados", name: "Toucinho, frito", kcal: 697, prot: 27.3, carb: 0.0, fat: 64.3 },
+  { id: "taco_446", category: "Leite e derivados", name: "Bebida láctea, pêssego", kcal: 55, prot: 2.1, carb: 7.6, fat: 1.9 },
+  { id: "taco_447", category: "Leite e derivados", name: "Creme de Leite", kcal: 221, prot: 1.5, carb: 4.5, fat: 22.5 },
+  { id: "taco_448", category: "Leite e derivados", name: "Iogurte, natural", kcal: 51, prot: 4.1, carb: 1.9, fat: 3.0 },
+  { id: "taco_449", category: "Leite e derivados", name: "Iogurte, natural, desnatado", kcal: 41, prot: 3.8, carb: 5.8, fat: 0.3 },
+  { id: "taco_450", category: "Leite e derivados", name: "Iogurte, sabor abacaxi", kcal: 0, prot: 0.0, carb: 0.0, fat: 0.0 },
+  { id: "taco_451", category: "Leite e derivados", name: "Iogurte, sabor morango", kcal: 70, prot: 2.7, carb: 9.7, fat: 2.3 },
+  { id: "taco_452", category: "Leite e derivados", name: "Iogurte, sabor pêssego", kcal: 68, prot: 2.5, carb: 9.4, fat: 2.3 },
+  { id: "taco_453", category: "Leite e derivados", name: "Leite, condensado", kcal: 313, prot: 7.7, carb: 57.0, fat: 6.7 },
+  { id: "taco_454", category: "Leite e derivados", name: "Leite, de cabra", kcal: 66, prot: 3.1, carb: 5.2, fat: 3.8 },
+  { id: "taco_455", category: "Leite e derivados", name: "Leite, de vaca, achocolatado", kcal: 83, prot: 2.1, carb: 14.2, fat: 2.2 },
+  { id: "taco_456", category: "Leite e derivados", name: "Leite, de vaca, desnatado, pó", kcal: 362, prot: 34.7, carb: 53.0, fat: 0.9 },
+  { id: "taco_457", category: "Leite e derivados", name: "Leite, de vaca, desnatado, UHT", kcal: 33, prot: 3.2, carb: 4.9, fat: 0.1 },
+  { id: "taco_458", category: "Leite e derivados", name: "Leite, de vaca, integral", kcal: 61, prot: 3.1, carb: 4.7, fat: 3.2 },
+  { id: "taco_459", category: "Leite e derivados", name: "Leite, de vaca, integral, pó", kcal: 497, prot: 25.4, carb: 39.2, fat: 26.9 },
+  { id: "taco_460", category: "Leite e derivados", name: "Leite, fermentado", kcal: 70, prot: 1.9, carb: 15.7, fat: 0.1 },
+  { id: "taco_461", category: "Leite e derivados", name: "Queijo, minas, frescal", kcal: 264, prot: 17.4, carb: 3.2, fat: 20.2 },
+  { id: "taco_462", category: "Leite e derivados", name: "Queijo, minas, meia cura", kcal: 321, prot: 21.2, carb: 3.6, fat: 24.6 },
+  { id: "taco_463", category: "Leite e derivados", name: "Queijo, mozarela", kcal: 330, prot: 22.6, carb: 3.0, fat: 25.2 },
+  { id: "taco_464", category: "Leite e derivados", name: "Queijo, parmesão", kcal: 453, prot: 35.6, carb: 1.7, fat: 33.5 },
+  { id: "taco_465", category: "Leite e derivados", name: "Queijo, pasteurizado", kcal: 303, prot: 9.4, carb: 5.7, fat: 27.4 },
+  { id: "taco_466", category: "Leite e derivados", name: "Queijo, petit suisse, morango", kcal: 121, prot: 5.8, carb: 18.5, fat: 2.8 },
+  { id: "taco_467", category: "Leite e derivados", name: "Queijo, prato", kcal: 360, prot: 22.7, carb: 1.9, fat: 29.1 },
+  { id: "taco_468", category: "Leite e derivados", name: "Queijo, requeijão, cremoso", kcal: 257, prot: 9.6, carb: 2.4, fat: 23.4 },
+  { id: "taco_469", category: "Leite e derivados", name: "Queijo, ricota", kcal: 140, prot: 12.6, carb: 3.8, fat: 8.1 },
+  { id: "taco_470", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Bebida isotônica, sabores variados", kcal: 26, prot: 0.0, carb: 6.4, fat: 0.0 },
+  { id: "taco_471", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Café, infusão 10%", kcal: 9, prot: 0.7, carb: 1.5, fat: 0.1 },
+  { id: "taco_472", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Cana, aguardente ¹", kcal: 216, prot: 0.0, carb: 0.0, fat: 0.0 },
+  { id: "taco_473", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Cana, caldo de", kcal: 65, prot: 0.0, carb: 18.2, fat: 0.0 },
+  { id: "taco_474", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Cerveja, pilsen 2", kcal: 41, prot: 0.6, carb: 3.3, fat: 0.0 },
+  { id: "taco_475", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Chá, erva-doce, infusão 5%", kcal: 1, prot: 0.0, carb: 0.4, fat: 0.0 },
+  { id: "taco_476", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Chá, mate, infusão 5%", kcal: 3, prot: 0.0, carb: 0.6, fat: 0.1 },
+  { id: "taco_477", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Chá, preto, infusão 5%", kcal: 2, prot: 0.0, carb: 0.6, fat: 0.0 },
+  { id: "taco_478", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Coco, água de", kcal: 22, prot: 0.0, carb: 5.3, fat: 0.0 },
+  { id: "taco_479", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Refrigerante, tipo água tônica", kcal: 31, prot: 0.0, carb: 8.0, fat: 0.0 },
+  { id: "taco_480", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Refrigerante, tipo cola", kcal: 34, prot: 0.0, carb: 8.7, fat: 0.0 },
+  { id: "taco_481", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Refrigerante, tipo guaraná", kcal: 39, prot: 0.0, carb: 10.0, fat: 0.0 },
+  { id: "taco_482", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Refrigerante, tipo laranja", kcal: 46, prot: 0.0, carb: 11.8, fat: 0.0 },
+  { id: "taco_483", category: "Bebidas (alcoólicas e não alcoólicas)", name: "Refrigerante, tipo limão", kcal: 40, prot: 0.0, carb: 10.3, fat: 0.0 },
+  { id: "taco_484", category: "Ovos e derivados", name: "Omelete, de queijo", kcal: 268, prot: 15.6, carb: 0.4, fat: 22.0 },
+  { id: "taco_485", category: "Ovos e derivados", name: "Ovo, de codorna, inteiro, cru", kcal: 177, prot: 13.7, carb: 0.8, fat: 12.7 },
+  { id: "taco_486", category: "Ovos e derivados", name: "Ovo, de galinha, clara, cozida/10minutos", kcal: 59, prot: 13.4, carb: 0.0, fat: 0.1 },
+  { id: "taco_487", category: "Ovos e derivados", name: "Ovo, de galinha, gema, cozida/10minutos", kcal: 353, prot: 15.9, carb: 1.6, fat: 30.8 },
+  { id: "taco_488", category: "Ovos e derivados", name: "Ovo, de galinha, inteiro, cozido/10minutos", kcal: 146, prot: 13.3, carb: 0.6, fat: 9.5 },
+  { id: "taco_489", category: "Ovos e derivados", name: "Ovo, de galinha, inteiro, cru", kcal: 143, prot: 13.0, carb: 1.6, fat: 8.9 },
+  { id: "taco_490", category: "Ovos e derivados", name: "Ovo, de galinha, inteiro, frito", kcal: 240, prot: 15.6, carb: 1.2, fat: 18.6 },
+  { id: "taco_491", category: "Produtos açucarados", name: "Achocolatado, pó", kcal: 401, prot: 4.2, carb: 91.2, fat: 2.2 },
+  { id: "taco_492", category: "Produtos açucarados", name: "Açúcar, cristal", kcal: 387, prot: 0.3, carb: 99.6, fat: 0.0 },
+  { id: "taco_493", category: "Produtos açucarados", name: "Açúcar, mascavo", kcal: 369, prot: 0.8, carb: 94.5, fat: 0.1 },
+  { id: "taco_494", category: "Produtos açucarados", name: "Açúcar, refinado", kcal: 387, prot: 0.3, carb: 99.5, fat: 0.0 },
+  { id: "taco_495", category: "Produtos açucarados", name: "Chocolate, ao leite", kcal: 540, prot: 7.2, carb: 59.6, fat: 30.3 },
+  { id: "taco_496", category: "Produtos açucarados", name: "Chocolate, ao leite, com castanha do Pará", kcal: 559, prot: 7.4, carb: 55.4, fat: 34.2 },
+  { id: "taco_497", category: "Produtos açucarados", name: "Chocolate, ao leite, dietético", kcal: 557, prot: 6.9, carb: 56.3, fat: 33.8 },
+  { id: "taco_498", category: "Produtos açucarados", name: "Chocolate, meio amargo", kcal: 475, prot: 4.9, carb: 62.4, fat: 29.9 },
+  { id: "taco_499", category: "Produtos açucarados", name: "Cocada branca", kcal: 449, prot: 1.1, carb: 81.4, fat: 13.6 },
+  { id: "taco_500", category: "Produtos açucarados", name: "Doce, de abóbora, cremoso", kcal: 199, prot: 0.9, carb: 54.6, fat: 0.2 },
+  { id: "taco_501", category: "Produtos açucarados", name: "Doce, de leite, cremoso", kcal: 306, prot: 5.5, carb: 59.5, fat: 6.0 },
+  { id: "taco_502", category: "Produtos açucarados", name: "Geléia, mocotó, natural", kcal: 106, prot: 2.1, carb: 24.2, fat: 0.1 },
+  { id: "taco_503", category: "Produtos açucarados", name: "Glicose de milho", kcal: 292, prot: 0.0, carb: 79.4, fat: 0.0 },
+  { id: "taco_504", category: "Produtos açucarados", name: "Maria mole", kcal: 301, prot: 3.8, carb: 73.6, fat: 0.2 },
+  { id: "taco_505", category: "Produtos açucarados", name: "Maria mole, coco queimado", kcal: 307, prot: 3.9, carb: 75.1, fat: 0.1 },
+  { id: "taco_506", category: "Produtos açucarados", name: "Marmelada", kcal: 257, prot: 0.4, carb: 70.8, fat: 0.1 },
+  { id: "taco_507", category: "Produtos açucarados", name: "Mel, de abelha", kcal: 309, prot: 0.0, carb: 84.0, fat: 0.0 },
+  { id: "taco_508", category: "Produtos açucarados", name: "Melado", kcal: 297, prot: 0.0, carb: 76.6, fat: 0.0 },
+  { id: "taco_509", category: "Produtos açucarados", name: "Quindim", kcal: 411, prot: 4.7, carb: 46.3, fat: 24.4 },
+  { id: "taco_510", category: "Produtos açucarados", name: "Rapadura", kcal: 352, prot: 1.0, carb: 90.8, fat: 0.1 },
+  { id: "taco_511", category: "Miscelâneas", name: "Café, pó, torrado", kcal: 419, prot: 14.7, carb: 65.8, fat: 11.9 },
+  { id: "taco_512", category: "Miscelâneas", name: "Capuccino, pó", kcal: 417, prot: 11.3, carb: 73.6, fat: 8.6 },
+  { id: "taco_513", category: "Miscelâneas", name: "Fermento em pó, químico", kcal: 90, prot: 0.5, carb: 43.9, fat: 0.1 },
+  { id: "taco_514", category: "Miscelâneas", name: "Fermento, biológico, levedura, tablete", kcal: 90, prot: 17.0, carb: 7.7, fat: 1.5 },
+  { id: "taco_515", category: "Miscelâneas", name: "Gelatina, sabores variados, pó", kcal: 380, prot: 8.9, carb: 89.2, fat: 0.0 },
+  { id: "taco_516", category: "Miscelâneas", name: "Sal, dietético", kcal: 0, prot: 0.0, carb: 0.0, fat: 0.0 },
+  { id: "taco_517", category: "Miscelâneas", name: "Sal, grosso", kcal: 0, prot: 0.0, carb: 0.0, fat: 0.0 },
+  { id: "taco_518", category: "Miscelâneas", name: "Shoyu", kcal: 61, prot: 3.3, carb: 11.6, fat: 0.3 },
+  { id: "taco_519", category: "Miscelâneas", name: "Tempero a base de sal", kcal: 21, prot: 2.7, carb: 2.1, fat: 0.3 },
+  { id: "taco_520", category: "Outros alimentos industrializados", name: "Azeitona, preta, conserva", kcal: 194, prot: 1.2, carb: 5.5, fat: 20.3 },
+  { id: "taco_521", category: "Outros alimentos industrializados", name: "Azeitona, verde, conserva", kcal: 137, prot: 0.9, carb: 4.1, fat: 14.2 },
+  { id: "taco_522", category: "Outros alimentos industrializados", name: "Chantilly, spray, com gordura vegetal", kcal: 315, prot: 0.5, carb: 16.9, fat: 27.3 },
+  { id: "taco_523", category: "Outros alimentos industrializados", name: "Leite, de coco", kcal: 166, prot: 1.0, carb: 2.2, fat: 18.4 },
+  { id: "taco_524", category: "Outros alimentos industrializados", name: "Maionese, tradicional com ovos", kcal: 302, prot: 0.6, carb: 7.9, fat: 30.5 },
+  { id: "taco_525", category: "Alimentos preparados", name: "Acarajé", kcal: 289, prot: 8.3, carb: 19.1, fat: 19.9 },
+  { id: "taco_526", category: "Alimentos preparados", name: "Arroz carreteiro", kcal: 154, prot: 10.8, carb: 11.6, fat: 7.1 },
+  { id: "taco_527", category: "Alimentos preparados", name: "Baião de dois, arroz e feijão-de-corda", kcal: 136, prot: 6.2, carb: 20.4, fat: 3.2 },
+  { id: "taco_528", category: "Alimentos preparados", name: "Barreado", kcal: 165, prot: 18.3, carb: 0.2, fat: 9.5 },
+  { id: "taco_529", category: "Alimentos preparados", name: "Bife à cavalo, com contra filé", kcal: 291, prot: 23.7, carb: 0.0, fat: 21.1 },
+  { id: "taco_530", category: "Alimentos preparados", name: "Bolinho de arroz", kcal: 274, prot: 8.0, carb: 41.7, fat: 8.3 },
+  { id: "taco_531", category: "Alimentos preparados", name: "Camarão à baiana", kcal: 101, prot: 7.9, carb: 3.2, fat: 6.0 },
+  { id: "taco_532", category: "Alimentos preparados", name: "Charuto, de repolho", kcal: 78, prot: 6.8, carb: 10.1, fat: 1.1 },
+  { id: "taco_533", category: "Alimentos preparados", name: "Cuscuz, de milho, cozido com sal", kcal: 113, prot: 2.2, carb: 25.3, fat: 0.7 },
+  { id: "taco_534", category: "Alimentos preparados", name: "Cuscuz, paulista", kcal: 142, prot: 2.6, carb: 22.5, fat: 4.6 },
+  { id: "taco_535", category: "Alimentos preparados", name: "Cuxá, molho", kcal: 80, prot: 5.6, carb: 5.7, fat: 3.6 },
+  { id: "taco_536", category: "Alimentos preparados", name: "Dobradinha", kcal: 125, prot: 19.8, carb: 0.0, fat: 4.4 },
+  { id: "taco_537", category: "Alimentos preparados", name: "Estrogonofe de carne", kcal: 173, prot: 15.0, carb: 3.0, fat: 10.8 },
+  { id: "taco_538", category: "Alimentos preparados", name: "Estrogonofe de frango", kcal: 157, prot: 17.6, carb: 2.6, fat: 8.0 },
+  { id: "taco_539", category: "Alimentos preparados", name: "Feijão tropeiro mineiro", kcal: 152, prot: 10.2, carb: 19.6, fat: 6.8 },
+  { id: "taco_540", category: "Alimentos preparados", name: "Feijoada", kcal: 117, prot: 8.7, carb: 11.6, fat: 6.5 },
+  { id: "taco_541", category: "Alimentos preparados", name: "Frango, com açafrão", kcal: 113, prot: 9.7, carb: 4.1, fat: 6.2 },
+  { id: "taco_542", category: "Alimentos preparados", name: "Macarrão, molho bolognesa", kcal: 120, prot: 4.9, carb: 22.5, fat: 0.9 },
+  { id: "taco_543", category: "Alimentos preparados", name: "Maniçoba", kcal: 134, prot: 10.0, carb: 3.4, fat: 8.7 },
+  { id: "taco_544", category: "Alimentos preparados", name: "Quibebe", kcal: 86, prot: 8.6, carb: 6.6, fat: 2.7 },
+  { id: "taco_545", category: "Alimentos preparados", name: "Salada, de legumes, com maionese", kcal: 96, prot: 1.1, carb: 8.9, fat: 7.0 },
+  { id: "taco_546", category: "Alimentos preparados", name: "Salada, de legumes, cozida no vapor", kcal: 35, prot: 2.0, carb: 7.1, fat: 0.3 },
+  { id: "taco_547", category: "Alimentos preparados", name: "Salpicão, de frango", kcal: 148, prot: 13.9, carb: 4.6, fat: 7.8 },
+  { id: "taco_548", category: "Alimentos preparados", name: "Sarapatel", kcal: 123, prot: 18.5, carb: 1.1, fat: 4.4 },
+  { id: "taco_549", category: "Alimentos preparados", name: "Tabule", kcal: 57, prot: 2.0, carb: 10.6, fat: 1.2 },
+  { id: "taco_550", category: "Alimentos preparados", name: "Tacacá", kcal: 47, prot: 7.0, carb: 3.4, fat: 0.4 },
+  { id: "taco_551", category: "Alimentos preparados", name: "Tapioca, com manteiga", kcal: 348, prot: 0.1, carb: 63.6, fat: 10.9 },
+  { id: "taco_552", category: "Alimentos preparados", name: "Tucupi, com pimenta-de-cheiro", kcal: 27, prot: 2.1, carb: 4.7, fat: 0.3 },
+  { id: "taco_553", category: "Alimentos preparados", name: "Vaca atolada", kcal: 145, prot: 5.1, carb: 10.1, fat: 9.3 },
+  { id: "taco_554", category: "Alimentos preparados", name: "Vatapá", kcal: 255, prot: 6.0, carb: 9.7, fat: 23.2 },
+  { id: "taco_555", category: "Alimentos preparados", name: "Virado à paulista", kcal: 307, prot: 10.2, carb: 14.1, fat: 25.6 },
+  { id: "taco_556", category: "Alimentos preparados", name: "Yakisoba", kcal: 113, prot: 7.5, carb: 18.3, fat: 2.6 },
+  { id: "taco_557", category: "Leguminosas e derivados", name: "Amendoim, grão, cru", kcal: 544, prot: 27.2, carb: 20.3, fat: 43.9 },
+  { id: "taco_558", category: "Leguminosas e derivados", name: "Amendoim, torrado, salgado", kcal: 606, prot: 22.5, carb: 18.7, fat: 54.0 },
+  { id: "taco_559", category: "Leguminosas e derivados", name: "Ervilha, em vagem", kcal: 88, prot: 7.5, carb: 14.2, fat: 0.5 },
+  { id: "taco_560", category: "Leguminosas e derivados", name: "Ervilha, enlatada, drenada", kcal: 74, prot: 4.6, carb: 13.4, fat: 0.4 },
+  { id: "taco_561", category: "Leguminosas e derivados", name: "Feijão, carioca, cozido", kcal: 76, prot: 4.8, carb: 13.6, fat: 0.5 },
+  { id: "taco_562", category: "Leguminosas e derivados", name: "Feijão, carioca, cru", kcal: 329, prot: 20.0, carb: 61.2, fat: 1.3 },
+  { id: "taco_563", category: "Leguminosas e derivados", name: "Feijão, fradinho, cozido", kcal: 78, prot: 5.1, carb: 13.5, fat: 0.6 },
+  { id: "taco_564", category: "Leguminosas e derivados", name: "Feijão, fradinho, cru", kcal: 339, prot: 20.2, carb: 61.2, fat: 2.4 },
+  { id: "taco_565", category: "Leguminosas e derivados", name: "Feijão, jalo, cozido", kcal: 93, prot: 6.1, carb: 16.5, fat: 0.5 },
+  { id: "taco_566", category: "Leguminosas e derivados", name: "Feijão, jalo, cru", kcal: 328, prot: 20.1, carb: 61.5, fat: 0.9 },
+  { id: "taco_567", category: "Leguminosas e derivados", name: "Feijão, preto, cozido", kcal: 77, prot: 4.5, carb: 14.0, fat: 0.5 },
+  { id: "taco_568", category: "Leguminosas e derivados", name: "Feijão, preto, cru", kcal: 324, prot: 21.3, carb: 58.8, fat: 1.2 },
+  { id: "taco_569", category: "Leguminosas e derivados", name: "Feijão, rajado, cozido", kcal: 85, prot: 5.5, carb: 15.3, fat: 0.4 },
+  { id: "taco_570", category: "Leguminosas e derivados", name: "Feijão, rajado, cru", kcal: 326, prot: 17.3, carb: 62.9, fat: 1.2 },
+  { id: "taco_571", category: "Leguminosas e derivados", name: "Feijão, rosinha, cozido", kcal: 68, prot: 4.5, carb: 11.8, fat: 0.5 },
+  { id: "taco_572", category: "Leguminosas e derivados", name: "Feijão, rosinha, cru", kcal: 337, prot: 20.9, carb: 62.2, fat: 1.3 },
+  { id: "taco_573", category: "Leguminosas e derivados", name: "Feijão, roxo, cozido", kcal: 77, prot: 5.7, carb: 12.9, fat: 0.5 },
+  { id: "taco_574", category: "Leguminosas e derivados", name: "Feijão, roxo, cru", kcal: 331, prot: 22.2, carb: 60.0, fat: 1.2 },
+  { id: "taco_575", category: "Leguminosas e derivados", name: "Grão-de-bico, cru", kcal: 355, prot: 21.2, carb: 57.9, fat: 5.4 },
+  { id: "taco_576", category: "Leguminosas e derivados", name: "Guandu, cru", kcal: 344, prot: 19.0, carb: 64.0, fat: 2.1 },
+  { id: "taco_577", category: "Leguminosas e derivados", name: "Lentilha, cozida", kcal: 93, prot: 6.3, carb: 16.3, fat: 0.5 },
+  { id: "taco_578", category: "Leguminosas e derivados", name: "Lentilha, crua", kcal: 339, prot: 23.2, carb: 62.0, fat: 0.8 },
+  { id: "taco_579", category: "Leguminosas e derivados", name: "Paçoca, amendoim", kcal: 487, prot: 16.0, carb: 52.4, fat: 26.1 },
+  { id: "taco_580", category: "Leguminosas e derivados", name: "Pé-de-moleque, amendoim", kcal: 503, prot: 13.2, carb: 54.7, fat: 28.0 },
+  { id: "taco_581", category: "Leguminosas e derivados", name: "Soja, farinha", kcal: 404, prot: 36.0, carb: 38.4, fat: 14.6 },
+  { id: "taco_582", category: "Leguminosas e derivados", name: "Soja, extrato solúvel, natural, fluido", kcal: 39, prot: 2.4, carb: 4.3, fat: 1.6 },
+  { id: "taco_583", category: "Leguminosas e derivados", name: "Soja, extrato solúvel, pó", kcal: 459, prot: 35.7, carb: 28.5, fat: 26.2 },
+  { id: "taco_584", category: "Leguminosas e derivados", name: "Soja, queijo (tofu)", kcal: 64, prot: 6.6, carb: 2.1, fat: 4.0 },
+  { id: "taco_585", category: "Leguminosas e derivados", name: "Tremoço, cru", kcal: 381, prot: 33.6, carb: 43.8, fat: 10.3 },
+  { id: "taco_586", category: "Leguminosas e derivados", name: "Tremoço, em conserva", kcal: 121, prot: 11.1, carb: 12.4, fat: 3.8 },
+  { id: "taco_587", category: "Nozes e sementes", name: "Amêndoa, torrada, salgada", kcal: 581, prot: 18.6, carb: 29.5, fat: 47.3 },
+  { id: "taco_588", category: "Nozes e sementes", name: "Castanha-de-caju, torrada, salgada", kcal: 570, prot: 18.5, carb: 29.1, fat: 46.3 },
+  { id: "taco_589", category: "Nozes e sementes", name: "Castanha-do-Brasil, crua", kcal: 643, prot: 14.5, carb: 15.1, fat: 63.5 },
+  { id: "taco_590", category: "Nozes e sementes", name: "Coco, cru", kcal: 406, prot: 3.7, carb: 10.4, fat: 42.0 },
+  { id: "taco_591", category: "Nozes e sementes", name: "Coco, verde, cru", kcal: 0, prot: 0.0, carb: 0.0, fat: 0.0 },
+  { id: "taco_592", category: "Nozes e sementes", name: "Farinha, de mesocarpo de babaçu, crua", kcal: 329, prot: 1.4, carb: 79.2, fat: 0.2 },
+  { id: "taco_593", category: "Nozes e sementes", name: "Gergelim, semente", kcal: 584, prot: 21.2, carb: 21.6, fat: 50.4 },
+  { id: "taco_594", category: "Nozes e sementes", name: "Linhaça, semente", kcal: 495, prot: 14.1, carb: 43.3, fat: 32.3 },
+  { id: "taco_595", category: "Nozes e sementes", name: "Pinhão, cozido", kcal: 174, prot: 3.0, carb: 43.9, fat: 0.7 },
+  { id: "taco_596", category: "Nozes e sementes", name: "Pupunha, cozida", kcal: 219, prot: 2.5, carb: 29.6, fat: 12.8 },
+  { id: "taco_597", category: "Nozes e sementes", name: "Noz, crua", kcal: 620, prot: 14.0, carb: 18.4, fat: 59.4 },
+];
+
+    const MEAL_DEFINITIONS = [
+      { key: "cafe", label: "Café da Manhã", icon: "☕", defaultTime: "07:30" },
+      { key: "almoco", label: "Almoço", icon: "🍛", defaultTime: "12:30" },
+      { key: "lanche", label: "Lanche da Tarde", icon: "🥪", defaultTime: "16:30" },
+      { key: "jantar", label: "Jantar", icon: "🍲", defaultTime: "20:00" },
+      { key: "ceia", label: "Ceia", icon: "🌙", defaultTime: "22:30" }
+    ];
+
+    let foodsDb = [...DEFAULT_TBCA_FOODS];
+    let selectedCategoryByMeal = {};
+    let searchTermByMeal = {};
+
+    let appState = {
+      patientName: "",
+      patientEmail: "",
+      recordDate: new Date().toISOString().split("T")[0],
+      goals: { kcal: 2000, prot: 150, carb: 200, fat: 67 },
+      meals: {}
+    };
+
+    let macroChartInstance = null;
+
+    function createEmptyMeals() {
+      const obj = {};
+      MEAL_DEFINITIONS.forEach(m => {
+        obj[m.key] = {
+          time: m.defaultTime,
+          notes: "",
+          items: []
+        };
+      });
+      return obj;
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadDatabase();
+      loadStateFromLocal();
+      initChart();
+      renderMeals();
+      updateTotalsAndUI();
+      sincronizarAlimentosCompartilhados();
+    });
+
+    const CUSTOM_CATEGORY_NAME = "Alimentos adicionados";
+
+    function ensureCustomCategoryExists() {
+      if (!FOOD_CATEGORIES.includes(CUSTOM_CATEGORY_NAME)) {
+        FOOD_CATEGORIES.unshift(CUSTOM_CATEGORY_NAME);
+      }
+    }
+
+    function loadDatabase() {
+      const savedCustom = localStorage.getItem("calcdebem_custom_foods_v1");
+      let customFoods = [];
+      if (savedCustom) {
+        try {
+          customFoods = JSON.parse(savedCustom) || [];
+        } catch (e) {
+          customFoods = [];
+        }
+      }
+      if (customFoods.length > 0) {
+        ensureCustomCategoryExists();
+      }
+      foodsDb = [...customFoods, ...DEFAULT_TBCA_FOODS];
+      const countEl = document.getElementById("foodCountLabel");
+      if (countEl) countEl.textContent = foodsDb.length;
+    }
+
+    // Busca da Planilha Central todos os alimentos cadastrados por qualquer paciente
+    async function sincronizarAlimentosCompartilhados() {
+      const gasUrl = localStorage.getItem("calcdebem_gas_url") || DEFAULT_GAS_WEB_APP_URL;
+      if (!gasUrl) return;
+
+      try {
+        const urlFetch = gasUrl + (gasUrl.includes("?") ? "&" : "?") + "action=obterAlimentos";
+        const resp = await fetch(urlFetch);
+        if (!resp.ok) return;
+
+        const sharedFoods = await resp.json();
+        if (Array.isArray(sharedFoods) && sharedFoods.length > 0) {
+          ensureCustomCategoryExists();
+
+          // Mescla os alimentos compartilhados com os alimentos locais sem duplicar por nome
+          const map = new Map();
+          sharedFoods.forEach(f => {
+            const cleanName = f.name.toLowerCase().trim();
+            map.set(cleanName, {
+              id: f.id || ("shared_" + Math.random().toString(36).substr(2, 9)),
+              category: CUSTOM_CATEGORY_NAME,
+              name: f.name.trim(),
+              kcal: Math.round(Number(f.kcal) || 0),
+              prot: Number((Number(f.prot) || 0).toFixed(1)),
+              carb: Number((Number(f.carb) || 0).toFixed(1)),
+              fat: Number((Number(f.fat) || 0).toFixed(1))
+            });
+          });
+
+          // Mantém também eventuais itens recém-adicionados no navegador antes de sincronizar
+          const savedCustom = localStorage.getItem("calcdebem_custom_foods_v1");
+          if (savedCustom) {
+            try {
+              const localList = JSON.parse(savedCustom) || [];
+              localList.forEach(f => {
+                const clean = f.name.toLowerCase().trim();
+                if (!map.has(clean)) {
+                  map.set(clean, f);
+                }
+              });
+            } catch (e) {}
+          }
+
+          const mergedCustom = Array.from(map.values());
+          localStorage.setItem("calcdebem_custom_foods_v1", JSON.stringify(mergedCustom));
+
+          foodsDb = [...mergedCustom, ...DEFAULT_TBCA_FOODS];
+          const countEl = document.getElementById("foodCountLabel");
+          if (countEl) countEl.textContent = foodsDb.length;
+
+          renderMeals();
+        }
+      } catch (err) {
+        console.log("Sem conexão ou operando com cache local de alimentos:", err);
+      }
+    }
+
+    function openCustomFoodModal() {
+      document.getElementById("customFoodModal").classList.remove("hidden");
+      document.getElementById("customFoodModal").classList.add("flex");
+    }
+
+    function closeCustomFoodModal() {
+      document.getElementById("customFoodModal").classList.add("hidden");
+      document.getElementById("customFoodModal").classList.remove("flex");
+    }
+
+    async function addCustomFood() {
+      const name = document.getElementById("newFoodName").value.trim();
+      const kcal = parseFloat(document.getElementById("newFoodKcal").value);
+      const prot = parseFloat(document.getElementById("newFoodProt").value) || 0;
+      const carb = parseFloat(document.getElementById("newFoodCarb").value) || 0;
+      const fat = parseFloat(document.getElementById("newFoodFat").value) || 0;
+
+      if (!name || isNaN(kcal)) {
+        alert("Informe pelo menos o Nome do Alimento e a Energia (kcal / 100g).");
+        return;
+      }
+
+      // Cria a categoria "Alimentos adicionados" caso ainda não exista
+      ensureCustomCategoryExists();
+
+      const newFood = {
+        id: "custom_" + Date.now(),
+        category: CUSTOM_CATEGORY_NAME,
+        name: name,
+        kcal: Math.round(kcal),
+        prot: Number(prot.toFixed(1)),
+        carb: Number(carb.toFixed(1)),
+        fat: Number(fat.toFixed(1))
+      };
+
+      // 1. Salva localmente para visualização instantânea
+      const savedCustom = localStorage.getItem("calcdebem_custom_foods_v1");
+      let customFoods = [];
+      if (savedCustom) {
+        try { customFoods = JSON.parse(savedCustom) || []; } catch (e) { customFoods = []; }
+      }
+      customFoods.unshift(newFood);
+      localStorage.setItem("calcdebem_custom_foods_v1", JSON.stringify(customFoods));
+
+      foodsDb.unshift(newFood);
+      const countEl = document.getElementById("foodCountLabel");
+      if (countEl) countEl.textContent = foodsDb.length;
+
+      // Limpa os campos do formulário
+      document.getElementById("newFoodName").value = "";
+      document.getElementById("newFoodKcal").value = "";
+      document.getElementById("newFoodProt").value = "";
+      document.getElementById("newFoodCarb").value = "";
+      document.getElementById("newFoodFat").value = "";
+
+      renderMeals();
+      closeCustomFoodModal();
+      showFeedback(`✅ Alimento <strong>${name}</strong> salvo e compartilhado com todos os pacientes!`, "success");
+
+      // 2. Envia para a Planilha Central para que TODOS os outros usuários tenham acesso
+      const gasUrl = localStorage.getItem("calcdebem_gas_url") || DEFAULT_GAS_WEB_APP_URL;
+      if (gasUrl) {
+        try {
+          fetch(gasUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              tipo: "novo_alimento",
+              alimento: newFood
+            })
+          });
+        } catch (err) {
+          console.error("Erro ao enviar alimento compartilhado para a planilha:", err);
+        }
+      }
+    }
+
+    function loadStateFromLocal() {
+      appState.meals = createEmptyMeals();
+      const saved = localStorage.getItem("calcdebem_state_v1");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          appState = {
+            ...appState,
+            ...parsed,
+            meals: { ...createEmptyMeals(), ...(parsed.meals || {}) }
+          };
+        } catch (e) {}
+      }
+
+      if (!appState.recordDate) {
+        appState.recordDate = new Date().toISOString().split("T")[0];
+      }
+
+      document.getElementById("patientName").value = appState.patientName || "";
+      document.getElementById("patientEmail").value = appState.patientEmail || "";
+      document.getElementById("recordDate").value = appState.recordDate;
+
+      document.getElementById("goalKcal").value = appState.goals.kcal;
+      document.getElementById("goalProt").value = appState.goals.prot;
+      document.getElementById("goalCarb").value = appState.goals.carb;
+      document.getElementById("goalFat").value = appState.goals.fat;
+
+      const savedUrl = localStorage.getItem("calcdebem_gas_url") || DEFAULT_GAS_WEB_APP_URL;
+      document.getElementById("gasWebAppUrlInput").value = savedUrl;
+    }
+
+    function saveStateToLocal() {
+      appState.patientName = document.getElementById("patientName").value.trim();
+      appState.patientEmail = document.getElementById("patientEmail").value.trim();
+      appState.recordDate = document.getElementById("recordDate").value;
+      localStorage.setItem("calcdebem_state_v1", JSON.stringify(appState));
+    }
+
+    // Constrói as opções de alimentos agrupadas por Categoria (<optgroup>)
+    function buildFoodOptionsHtml(categoryFilter, searchFilter) {
+      const query = (searchFilter || "").trim().toLowerCase();
+      const categoriesToRender = categoryFilter && categoryFilter !== "ALL"
+        ? [categoryFilter]
+        : FOOD_CATEGORIES;
+
+      let html = "";
+      categoriesToRender.forEach(cat => {
+        const itemsInCat = foodsDb
+          .filter(f => f.category === cat && (!query || f.name.toLowerCase().includes(query)))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        if (itemsInCat.length > 0) {
+          html += `<optgroup label="📂 ${cat} (${itemsInCat.length})">`;
+          itemsInCat.forEach(f => {
+            html += `<option value="${f.id}">${f.name} — ${f.kcal} kcal | P:${f.prot}g C:${f.carb}g G:${f.fat}g</option>`;
+          });
+          html += `</optgroup>`;
+        }
+      });
+
+      if (!html) {
+        html = `<option value="">Nenhum alimento encontrado para este filtro</option>`;
+      }
+      return html;
+    }
+
+    function onFilterMealFoods(mealKey) {
+      const catEl = document.getElementById(`cat_${mealKey}`);
+      const searchEl = document.getElementById(`search_${mealKey}`);
+      const selectEl = document.getElementById(`select_${mealKey}`);
+
+      selectedCategoryByMeal[mealKey] = catEl ? catEl.value : "ALL";
+      searchTermByMeal[mealKey] = searchEl ? searchEl.value : "";
+
+      if (selectEl) {
+        selectEl.innerHTML = buildFoodOptionsHtml(
+          selectedCategoryByMeal[mealKey],
+          searchTermByMeal[mealKey]
+        );
+      }
+    }
+
+    // Renderização dos Quadrantes de Refeições com Filtro de Categoria e Busca
+    function renderMeals() {
+      const container = document.getElementById("mealsContainer");
+      container.innerHTML = "";
+
+      MEAL_DEFINITIONS.forEach(mealDef => {
+        const mealData = appState.meals[mealDef.key] || { time: mealDef.defaultTime, notes: "", items: [] };
+        const sub = calculateMealSubtotal(mealDef.key);
+        const currentCat = selectedCategoryByMeal[mealDef.key] || "ALL";
+        const currentSearch = searchTermByMeal[mealDef.key] || "";
+
+        const categoryOptionsHtml = [
+          `<option value="ALL" ${currentCat === "ALL" ? "selected" : ""}>📂 Todas as Categorias (${foodsDb.length} alimentos)</option>`,
+          ...FOOD_CATEGORIES.map(cat => {
+            const count = foodsDb.filter(f => f.category === cat).length;
+            const sel = currentCat === cat ? "selected" : "";
+            return `<option value="${cat}" ${sel}>${cat} (${count})</option>`;
+          })
+        ].join("");
+
+        const foodOptionsHtml = buildFoodOptionsHtml(currentCat, currentSearch);
+
+        const itemsHtml = mealData.items.length === 0
+          ? `<div class="text-xs text-slate-400 italic py-4 text-center bg-white rounded-xl border border-dashed border-slate-300">
+               Nenhum alimento registrado nesta refeição. Escolha a categoria e o alimento acima.
+             </div>`
+          : mealData.items.map((item, idx) => {
+              const food = foodsDb.find(f => f.id === item.foodId) || { name: item.customName || "Alimento", category: "", kcal: 0, prot: 0, carb: 0, fat: 0 };
+              const factor = (Number(item.grams) || 0) / 100;
+              const ikcal = Math.round(food.kcal * factor);
+              const iprot = (food.prot * factor).toFixed(1);
+              const icarb = (food.carb * factor).toFixed(1);
+              const ifat = (food.fat * factor).toFixed(1);
+
+              return `
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <p class="text-xs font-bold text-slate-800 truncate">${food.name}</p>
+                      ${food.category ? `<span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200 whitespace-nowrap">${food.category}</span>` : ""}
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-0.5">
+                      <strong class="text-slate-800">${ikcal} kcal</strong> •
+                      <span class="text-sky-700 font-medium">P: ${iprot}g</span> •
+                      <span class="text-amber-700 font-medium">C: ${icarb}g</span> •
+                      <span class="text-rose-700 font-medium">G: ${ifat}g</span>
+                    </p>
+                  </div>
+
+                  <div class="flex items-center gap-1.5 self-end sm:self-center">
+                    <button
+                      type="button"
+                      onclick="adjustGrams('${mealDef.key}', ${idx}, -10)"
+                      class="btn-yellow-step px-2.5 py-1.5 rounded-lg text-xs"
+                      title="Diminuir 10g"
+                    >
+                      -10g
+                    </button>
+
+                    <div class="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        max="5000"
+                        value="${item.grams}"
+                        onchange="setExactGrams('${mealDef.key}', ${idx}, this.value)"
+                        class="w-20 px-2 py-1.5 text-center rounded-lg border border-slate-300 text-xs font-bold text-slate-800 bg-slate-50"
+                      />
+                      <span class="text-[10px] text-slate-400 absolute right-1.5 top-2">g</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onclick="adjustGrams('${mealDef.key}', ${idx}, 10)"
+                      class="btn-yellow-step px-2.5 py-1.5 rounded-lg text-xs"
+                      title="Aumentar 10g"
+                    >
+                      +10g
+                    </button>
+
+                    <button
+                      type="button"
+                      onclick="removeFoodFromMeal('${mealDef.key}', ${idx})"
+                      class="ml-1 p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition"
+                      title="Remover item"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join("");
+
+        const card = document.createElement("div");
+        card.className = "card-surface rounded-2xl p-5 shadow-md flex flex-col justify-between space-y-4 min-w-0 overflow-hidden";
+        card.innerHTML = `
+          <div>
+            <!-- Topo do Quadrante: Nome da Refeição + Registro de Horário ao lado -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-300">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">${mealDef.icon}</span>
+                <h3 class="text-base font-extrabold text-slate-800">${mealDef.label}</h3>
+                <div class="flex items-center gap-1 bg-amber-100/80 border border-amber-300 px-2.5 py-1 rounded-lg">
+                  <span class="text-[11px] font-bold text-slate-700">⏰ Horário:</span>
+                  <input
+                    type="time"
+                    value="${mealData.time || mealDef.defaultTime}"
+                    onchange="updateMealTime('${mealDef.key}', this.value)"
+                    class="bg-transparent text-xs font-extrabold text-slate-900 focus:outline-none cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              <div class="text-right">
+                <span class="text-xs font-extrabold text-slate-900 bg-slate-200 px-2.5 py-1 rounded-lg">
+                  ${Math.round(sub.kcal)} kcal
+                </span>
+                <p class="text-[10px] text-slate-600 mt-0.5 font-medium">
+                  P: ${sub.prot.toFixed(1)}g | C: ${sub.carb.toFixed(1)}g | G: ${sub.fat.toFixed(1)}g
+                </p>
+              </div>
+            </div>
+
+            <!-- Filtro de Categoria + Busca Rápida -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-600 mb-0.5">Categoria de Alimento</label>
+                <select
+                  id="cat_${mealDef.key}"
+                  onchange="onFilterMealFoods('${mealDef.key}')"
+                  class="w-full px-2.5 py-1.5 rounded-xl bg-amber-50/90 border border-amber-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                >
+                  ${categoryOptionsHtml}
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-600 mb-0.5">Pesquisar pelo Nome</label>
+                <input
+                  type="text"
+                  id="search_${mealDef.key}"
+                  value="${currentSearch}"
+                  oninput="onFilterMealFoods('${mealDef.key}')"
+                  placeholder="Ex: frango, arroz, banana, ovo..."
+                  class="w-full px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
+              </div>
+            </div>
+
+            <!-- Seleção do Alimento Filtrado + Gramas + Botão Adicionar -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-2 w-full min-w-0">
+              <select id="select_${mealDef.key}" class="flex-1 min-w-0 w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs font-medium text-slate-800 truncate focus:outline-none focus:ring-2 focus:ring-amber-400">
+                ${foodOptionsHtml}
+              </select>
+              <div class="flex items-center gap-2 shrink-0">
+                <input
+                  type="number"
+                  id="grams_${mealDef.key}"
+                  value="100"
+                  min="1"
+                  max="3000"
+                  placeholder="Gramas (g)"
+                  class="w-20 px-2.5 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold text-center shrink-0"
+                />
+                <button
+                  type="button"
+                  onclick="addFoodToMeal('${mealDef.key}')"
+                  class="px-3.5 py-2 rounded-xl btn-yellow-step text-xs whitespace-nowrap shrink-0"
+                >
+                  + Adicionar
+                </button>
+              </div>
+            </div>
+
+            <!-- Lista de Itens da Refeição -->
+            <div class="mt-3 space-y-2 max-h-72 overflow-y-auto pr-1">
+              ${itemsHtml}
+            </div>
+          </div>
+
+          <!-- Espaço para Observações embaixo de cada Quadrante -->
+          <div class="pt-3 border-t border-slate-300">
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              📝 Observações da Refeição <span class="font-normal text-slate-500">(alterações, sintomas, estufamento ou mal-estar na ingestão)</span>
+            </label>
+            <textarea
+              rows="2"
+              placeholder="Ex: Troquei o arroz por batata; senti leve estufamento 30min após comer; comi fora do horário habitual..."
+              oninput="updateMealNotes('${mealDef.key}', this.value)"
+              class="w-full p-2.5 rounded-xl bg-white border border-slate-300 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            >${mealData.notes || ""}</textarea>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function addFoodToMeal(mealKey) {
+      const selectEl = document.getElementById(`select_${mealKey}`);
+      const gramsEl = document.getElementById(`grams_${mealKey}`);
+      const foodId = selectEl ? selectEl.value : "";
+      if (!foodId) return;
+      const grams = Math.max(1, Number(gramsEl.value) || 100);
+
+      const foodObj = foodsDb.find(f => f.id === foodId);
+      appState.meals[mealKey].items.push({
+        foodId,
+        customName: foodObj ? foodObj.name : "Alimento",
+        grams
+      });
+      saveStateToLocal();
+      renderMeals();
+      updateTotalsAndUI();
+    }
+
+    function adjustGrams(mealKey, itemIdx, delta) {
+      const item = appState.meals[mealKey].items[itemIdx];
+      if (!item) return;
+      item.grams = Math.max(0, (Number(item.grams) || 0) + delta);
+      saveStateToLocal();
+      renderMeals();
+      updateTotalsAndUI();
+    }
+
+    function setExactGrams(mealKey, itemIdx, val) {
+      const item = appState.meals[mealKey].items[itemIdx];
+      if (!item) return;
+      item.grams = Math.max(0, Number(val) || 0);
+      saveStateToLocal();
+      renderMeals();
+      updateTotalsAndUI();
+    }
+
+    function removeFoodFromMeal(mealKey, itemIdx) {
+      appState.meals[mealKey].items.splice(itemIdx, 1);
+      saveStateToLocal();
+      renderMeals();
+      updateTotalsAndUI();
+    }
+
+    function updateMealTime(mealKey, newTime) {
+      appState.meals[mealKey].time = newTime;
+      saveStateToLocal();
+    }
+
+    function updateMealNotes(mealKey, newNotes) {
+      appState.meals[mealKey].notes = newNotes;
+      saveStateToLocal();
+    }
+
+    function calculateMealSubtotal(mealKey) {
+      const meal = appState.meals[mealKey];
+      const sub = { kcal: 0, prot: 0, carb: 0, fat: 0 };
+      if (!meal || !meal.items) return sub;
+
+      meal.items.forEach(item => {
+        const food = foodsDb.find(f => f.id === item.foodId);
+        if (!food) return;
+        const factor = (Number(item.grams) || 0) / 100;
+        sub.kcal += food.kcal * factor;
+        sub.prot += food.prot * factor;
+        sub.carb += food.carb * factor;
+        sub.fat += food.fat * factor;
+      });
+      return sub;
+    }
+
+    function calculateDayTotals() {
+      const totals = { kcal: 0, prot: 0, carb: 0, fat: 0 };
+      MEAL_DEFINITIONS.forEach(m => {
+        const sub = calculateMealSubtotal(m.key);
+        totals.kcal += sub.kcal;
+        totals.prot += sub.prot;
+        totals.carb += sub.carb;
+        totals.fat += sub.fat;
+      });
+      return totals;
+    }
+
+    function updateTotalsAndUI() {
+      const totals = calculateDayTotals();
+      const g = appState.goals;
+
+      const kcalPct = Math.min(100, Math.round((totals.kcal / Math.max(1, g.kcal)) * 100));
+      const protPct = Math.min(100, Math.round((totals.prot / Math.max(1, g.prot)) * 100));
+      const carbPct = Math.min(100, Math.round((totals.carb / Math.max(1, g.carb)) * 100));
+      const fatPct = Math.min(100, Math.round((totals.fat / Math.max(1, g.fat)) * 100));
+
+      document.getElementById("labelKcalProgress").textContent = `${Math.round(totals.kcal)} / ${g.kcal} kcal (${kcalPct}%)`;
+      document.getElementById("labelProtProgress").textContent = `${totals.prot.toFixed(1)} / ${g.prot}g`;
+      document.getElementById("labelCarbProgress").textContent = `${totals.carb.toFixed(1)} / ${g.carb}g`;
+      document.getElementById("labelFatProgress").textContent = `${totals.fat.toFixed(1)} / ${g.fat}g`;
+
+      document.getElementById("barKcal").style.width = `${kcalPct}%`;
+      document.getElementById("barProt").style.width = `${protPct}%`;
+      document.getElementById("barCarb").style.width = `${carbPct}%`;
+      document.getElementById("barFat").style.width = `${fatPct}%`;
+
+      const pKcal = totals.prot * 4;
+      const cKcal = totals.carb * 4;
+      const fKcal = totals.fat * 9;
+      const macroEnergy = pKcal + cKcal + fKcal;
+
+      const pSplit = macroEnergy > 0 ? Math.round((pKcal / macroEnergy) * 100) : 0;
+      const cSplit = macroEnergy > 0 ? Math.round((cKcal / macroEnergy) * 100) : 0;
+      const fSplit = macroEnergy > 0 ? Math.max(0, 100 - pSplit - cSplit) : 0;
+
+      document.getElementById("macroSplitText").textContent = `Distribuição Calórica: P: ${pSplit}% • C: ${cSplit}% • G: ${fSplit}%`;
+
+      if (macroChartInstance) {
+        macroChartInstance.data.datasets[0].data = macroEnergy > 0 ? [pKcal, cKcal, fKcal] : [1, 1, 1];
+        macroChartInstance.update();
+      }
+    }
+
+    function initChart() {
+      const ctx = document.getElementById("macroChart").getContext("2d");
+      macroChartInstance = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Proteínas (kcal)", "Carboidratos (kcal)", "Gorduras (kcal)"],
+          datasets: [{
+            data: [1, 1, 1],
+            backgroundColor: ["#0284c7", "#d97706", "#e11d48"],
+            borderWidth: 2,
+            borderColor: "#f8fafc"
+          }]
+        },
+        options: {
+          cutout: "68%",
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    function setGoalMode(mode) {
+      const manualBox = document.getElementById("goalManualBox");
+      const autoBox = document.getElementById("goalAutoBox");
+      const btnManual = document.getElementById("tabModeManual");
+      const btnAuto = document.getElementById("tabModeAuto");
+
+      if (mode === "manual") {
+        manualBox.classList.remove("hidden");
+        autoBox.classList.add("hidden");
+        btnManual.className = "px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-sm";
+        btnAuto.className = "px-2.5 py-1 rounded-md text-slate-600";
+      } else {
+        manualBox.classList.add("hidden");
+        autoBox.classList.remove("hidden");
+        btnAuto.className = "px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-sm";
+        btnManual.className = "px-2.5 py-1 rounded-md text-slate-600";
+        calculateAutoGoals();
+      }
+    }
+
+    function updateGoalsFromManual() {
+      appState.goals.kcal = Math.max(500, Number(document.getElementById("goalKcal").value) || 2000);
+      appState.goals.prot = Math.max(10, Number(document.getElementById("goalProt").value) || 150);
+      appState.goals.carb = Math.max(0, Number(document.getElementById("goalCarb").value) || 200);
+      appState.goals.fat = Math.max(10, Number(document.getElementById("goalFat").value) || 67);
+      saveStateToLocal();
+      updateTotalsAndUI();
+    }
+
+    function calculateAutoGoals() {
+      const sex = document.getElementById("calcSex").value;
+      const age = Number(document.getElementById("calcAge").value) || 30;
+      const weight = Number(document.getElementById("calcWeight").value) || 75;
+      const height = Number(document.getElementById("calcHeight").value) || 175;
+      const act = Number(document.getElementById("calcActivity").value) || 1.55;
+      const obj = Number(document.getElementById("calcObjective").value) || 0;
+
+      const tmb = sex === "M"
+        ? (10 * weight) + (6.25 * height) - (5 * age) + 5
+        : (10 * weight) + (6.25 * height) - (5 * age) - 161;
+
+      const targetKcal = Math.round((tmb * act) + obj);
+      const prot = Math.round(weight * 2.0);
+      const fat = Math.round(weight * 0.9);
+      const carb = Math.max(0, Math.round((targetKcal - (prot * 4) - (fat * 9)) / 4));
+
+      appState.goals = { kcal: targetKcal, prot, carb, fat };
+      document.getElementById("goalKcal").value = targetKcal;
+      document.getElementById("goalProt").value = prot;
+      document.getElementById("goalCarb").value = carb;
+      document.getElementById("goalFat").value = fat;
+
+      saveStateToLocal();
+      updateTotalsAndUI();
+    }
+
+    function openConfigModal() {
+      document.getElementById("configModal").classList.remove("hidden");
+      document.getElementById("configModal").classList.add("flex");
+    }
+    function closeConfigModal() {
+      document.getElementById("configModal").classList.add("hidden");
+      document.getElementById("configModal").classList.remove("flex");
+    }
+    function saveGasUrl() {
+      const url = document.getElementById("gasWebAppUrlInput").value.trim();
+      localStorage.setItem("calcdebem_gas_url", url);
+      closeConfigModal();
+      showFeedback("URL do Google Apps Script salva com sucesso!", "success");
+    }
+
+    function loadSampleDay() {
+      appState.meals = createEmptyMeals();
+      appState.meals.cafe = {
+        time: "07:45",
+        notes: "Ótima disposição pela manhã, sem desconforto gástrico.",
+        items: [
+          { foodId: "taco_488", grams: 100 },
+          { foodId: "taco_54", grams: 50 },
+          { foodId: "taco_180", grams: 80 }
+        ]
+      };
+      appState.meals.almoco = {
+        time: "12:30",
+        notes: "Comi um pouco mais rápido hoje por conta do trabalho. Leve estufamento após 20 minutos.",
+        items: [
+          { foodId: "taco_403", grams: 150 },
+          { foodId: "taco_3", grams: 130 },
+          { foodId: "taco_561", grams: 100 },
+          { foodId: "taco_86", grams: 80 }
+        ]
+      };
+      appState.meals.lanche = {
+        time: "16:40",
+        notes: "Muita fome antes do treino, adicionei aveia no iogurte.",
+        items: [
+          { foodId: "taco_448", grams: 170 },
+          { foodId: "taco_10", grams: 30 }
+        ]
+      };
+      appState.meals.jantar = {
+        time: "20:15",
+        notes: "Refeição leve, boa digestão.",
+        items: [
+          { foodId: "taco_368", grams: 140 },
+          { foodId: "taco_78", grams: 150 }
+        ]
+      };
+      saveStateToLocal();
+      renderMeals();
+      updateTotalsAndUI();
+    }
+
+    function resetDay() {
+      if (!confirm("Deseja limpar todas as refeições e observações registradas hoje?")) return;
+      appState.meals = createEmptyMeals();
+      saveStateToLocal();
+      renderMeals();
+      updateTotalsAndUI();
+    }
+
+    function buildPayloadForSheets() {
+      const totals = calculateDayTotals();
+      const detailedMeals = MEAL_DEFINITIONS.map(m => {
+        const mealData = appState.meals[m.key];
+        const sub = calculateMealSubtotal(m.key);
+        const detailedItems = (mealData.items || []).map(item => {
+          const food = foodsDb.find(f => f.id === item.foodId) || { name: item.customName || "Alimento", category: "", kcal: 0, prot: 0, carb: 0, fat: 0 };
+          const factor = (Number(item.grams) || 0) / 100;
+          return {
+            nome: food.name,
+            categoria: food.category || "",
+            gramas: Number(item.grams) || 0,
+            kcal: Math.round(food.kcal * factor),
+            prot: Number((food.prot * factor).toFixed(1)),
+            carb: Number((food.carb * factor).toFixed(1)),
+            fat: Number((food.fat * factor).toFixed(1))
+          };
+        });
+
+        return {
+          chave: m.key,
+          nomeRefeicao: m.label,
+          horario: mealData.time || m.defaultTime,
+          observacoes: (mealData.notes || "").trim(),
+          subtotal: {
+            kcal: Math.round(sub.kcal),
+            prot: Number(sub.prot.toFixed(1)),
+            carb: Number(sub.carb.toFixed(1)),
+            fat: Number(sub.fat.toFixed(1))
+          },
+          itens: detailedItems
+        };
+      });
+
+      return {
+        pacienteNome: document.getElementById("patientName").value.trim(),
+        pacienteEmail: document.getElementById("patientEmail").value.trim().toLowerCase(),
+        dataRegistro: document.getElementById("recordDate").value,
+        enviadoEm: new Date().toLocaleString("pt-BR"),
+        metas: appState.goals,
+        totaisDia: {
+          kcal: Math.round(totals.kcal),
+          prot: Number(totals.prot.toFixed(1)),
+          carb: Number(totals.carb.toFixed(1)),
+          fat: Number(totals.fat.toFixed(1))
+        },
+        refeicoes: detailedMeals
+      };
+    }
+
+    function showFeedback(message, type) {
+      const box = document.getElementById("submitFeedbackBox");
+      box.classList.remove("hidden", "bg-emerald-100", "text-emerald-900", "border-emerald-300", "bg-rose-100", "text-rose-900", "border-rose-300", "bg-amber-100", "text-amber-900", "border-amber-300");
+      if (type === "success") {
+        box.classList.add("bg-emerald-100", "text-emerald-900", "border", "border-emerald-300");
+      } else if (type === "error") {
+        box.classList.add("bg-rose-100", "text-rose-900", "border", "border-rose-300");
+      } else {
+        box.classList.add("bg-amber-100", "text-amber-900", "border", "border-amber-300");
+      }
+      box.innerHTML = message;
+    }
+
+    async function submitToGoogleSheets() {
+      const nameInput = document.getElementById("patientName");
+      const emailInput = document.getElementById("patientEmail");
+      const dateInput = document.getElementById("recordDate");
+
+      const nome = nameInput.value.trim();
+      const email = emailInput.value.trim().toLowerCase();
+      const dataReg = dateInput.value;
+
+      if (!nome) {
+        showFeedback("⚠️ Por favor, preencha o campo obrigatório <strong>Nome Completo do Paciente</strong> antes de enviar.", "error");
+        nameInput.focus();
+        return;
+      }
+      if (!email || !email.includes("@")) {
+        showFeedback("⚠️ Por favor, preencha um <strong>E-mail válido</strong> para identificarmos sua pasta individual.", "error");
+        emailInput.focus();
+        return;
+      }
+      if (!dataReg) {
+        showFeedback("⚠️ Selecione o <strong>Dia de Registro das Refeições</strong>.", "error");
+        dateInput.focus();
+        return;
+      }
+
+      saveStateToLocal();
+      const payload = buildPayloadForSheets();
+      const btn = document.getElementById("btnSubmitSheet");
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳ Enviando registro de ${nome}...</span>`;
+
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            showFeedback(
+              `✅ <strong>Registro enviado com sucesso!</strong><br/>Paciente: <strong>${nome} (${email})</strong> • Data: <strong>${dataReg}</strong>.<br/>${res && res.mensagem ? res.mensagem : "Dados salvos na pasta e planilha do paciente."}`,
+              "success"
+            );
+          })
+          .withFailureHandler((err) => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            showFeedback(`❌ Erro ao salvar no Google Planilhas: ${err.message || err}`, "error");
+          })
+          .salvarRegistroPaciente(payload);
+        return;
+      }
+
+      const gasUrl = localStorage.getItem("calcdebem_gas_url") || DEFAULT_GAS_WEB_APP_URL;
+      if (!gasUrl) {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        openConfigModal();
+        showFeedback("⚙️ Configure a <strong>URL do Aplicativo da Web (Google Apps Script)</strong> para enviar os dados à planilha.", "warn");
+        return;
+      }
+
+      try {
+        await fetch(gasUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        showFeedback(
+          `✅ <strong>Registro diário enviado com sucesso!</strong><br/>Os dados de <strong>${nome} (${email})</strong> referentes ao dia <strong>${dataReg}</strong> foram encaminhados para sua pasta individual no Google Planilhas.`,
+          "success"
+        );
+      } catch (error) {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        showFeedback(`❌ Falha de conexão ao enviar: ${error.message}`, "error");
+      }
+    }
+  </script>
+</body>
+</html>
